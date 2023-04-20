@@ -26,7 +26,11 @@
   <worldbody>
     <geom name="floor" size="5 5 0.1" type="plane" condim="6"/>
     <body name="robot" pos="0 0 0.22">
-      <camera name="vision" pos=".125 0 .2" xyaxes="0 -1 0 .4 0 1" fovy="100"/>
+      <!-- <camera name="vision" pos=".125 0 .2" xyaxes="0 -1 0 .4 0 1" fovy="100"/> -->
+      <camera name="vision" pos="0.00 0 0.2" euler="1.57 -1.57 0" fovy="90"/>
+      <camera name="vision_back" pos="0.00 0 0.2" euler="1.57 1.57 0" fovy="90"/>
+      <camera name="vision_left" pos="0.00 0 0.2" euler="1.57 0 0" fovy="90"/>
+      <camera name="vision_right" pos="0.00 0 0.2" euler="1.57 3.14 0" fovy="90"/>
       <!-- <geom name="cam" pos=".15 0 .2" type="sphere" size="0.005"/> -->
       <site name="robot" pos="0 0 0"/>
       <geom name="robot" pos="0 0 0" size="0.075" fromto="0 0 0 .2 0 0" type="cylinder" density="0.5"/>

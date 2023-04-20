@@ -16,7 +16,7 @@
 
 import argparse
 import os
-
+os.environ['MUJOCO_GL'] = 'egl'  # noqa: E402
 from gymnasium.utils.save_video import save_video
 
 import safety_gymnasium
@@ -27,7 +27,7 @@ DIR = os.path.join(os.path.dirname(__file__), 'cached_test_vision_video')
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name)
+    env = safety_gymnasium.make(env_name, camera_name='fixedfar', height=256, width=256)
     obs, info = env.reset()  # pylint: disable=unused-variable
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
