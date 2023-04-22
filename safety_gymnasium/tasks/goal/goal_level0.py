@@ -16,6 +16,7 @@
 
 from safety_gymnasium.assets.geoms import Goal
 from safety_gymnasium.bases.base_task import BaseTask
+from safety_gymnasium.world import World
 
 
 class GoalLevel0(BaseTask):
@@ -30,6 +31,7 @@ class GoalLevel0(BaseTask):
 
         self.last_dist_goal = None
 
+        self.last_layout = None
     def calculate_reward(self):
         """Determine reward depending on the agent and tasks."""
         # pylint: disable=no-member
@@ -59,3 +61,34 @@ class GoalLevel0(BaseTask):
         """Whether the goal of task is achieved."""
         # pylint: disable-next=no-member
         return self.dist_goal() <= self.goal.size
+
+    def _build(self) -> None:
+        """Build the mujoco instance of environment from configurations."""
+        if self.placements_conf.placements is None:
+            self._build_placements_dict()
+            self.random_generator.set_placements_info(
+                self.placements_conf.placements,
+                self.placements_conf.extents,
+                self.placements_conf.margin,
+            )
+            # Sample object positions
+            self.world_info.layout = self.random_generator.build_layout()
+            # store layout exclude goal and agent
+            self.last_layout = {k:v for k,v in self.world_info.layout.items() if k not in ['goal','agent']}
+        else:
+            # Sample object positions
+            self.world_info.layout = self.random_generator.build_layout()
+            self.world_info.layout.update(self.last_layout)
+
+        self.world_info.world_config_dict = self._build_world_config(self.world_info.layout)
+
+
+        if self.world is None:
+            self.world = World(self.agent, self._obstacles, self.world_info.world_config_dict)
+            self.world.reset()
+            self.world.build()
+        else:
+            self.world.reset(build=False)
+            self.world.rebuild(self.world_info.world_config_dict, state=False)
+            if self.viewer:
+                self._update_viewer(self.model, self.data)
