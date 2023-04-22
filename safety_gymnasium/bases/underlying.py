@@ -381,6 +381,21 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         else:
             raise NotImplementedError
 
+    def _set_agent(self, pos: np.ndarray) -> None:
+        """Set position of goal object in Mujoco instance.
+
+        Note:
+            This method is used to make sure the position of goal object in Mujoco instance
+            is the same as the position of goal object in layout dictionary or in attributes
+            of task instance.
+        """
+        if pos.shape == (2,):
+            self.model.body('agent').pos[:2] = pos[:2]
+        elif pos.shape == (3,):
+            self.model.body('agent').pos[:3] = pos[:3]
+        else:
+            raise NotImplementedError
+
     def _render_lidar(
         self,
         poses: np.ndarray,

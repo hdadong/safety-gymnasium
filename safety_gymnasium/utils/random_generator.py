@@ -167,6 +167,18 @@ class RandomGenerator:
         self.layout['goal'] = goal_xy
         return True
 
+    def sample_agent_position(self) -> bool:
+        """Sample a new agent position and return True, else False if sample rejected."""
+        placements, keepout = self.placements['agent']
+        agent_xy = self.draw_placement(placements, keepout)
+        for other_name, other_xy in self.layout.items():
+            other_keepout = self.placements[other_name][1]
+            dist = np.sqrt(np.sum(np.square(agent_xy - other_xy)))
+            if dist < other_keepout + self.placements_margin + keepout:
+                return False
+        self.layout['agent'] = agent_xy
+        return True
+
     def constrain_placement(self, placement: dict, keepout: float) -> tuple[float]:
         """Helper function to constrain a single placement by the keepout radius."""
         xmin, ymin, xmax, ymax = placement

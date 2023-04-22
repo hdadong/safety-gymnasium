@@ -76,10 +76,18 @@ class GoalLevel0(BaseTask):
             # store layout exclude goal and agent
             self.last_layout = {k:v for k,v in self.world_info.layout.items() if k not in ['goal','agent']}
         else:
-            # Sample object positions
+            # Sample goal, agent, obstacles positions
             self.world_info.layout = self.random_generator.build_layout()
+
+            # Update layout with fixed obstacles
             if self.fixed_obstacles:
                 self.world_info.layout.update(self.last_layout)
+
+            # Sample goal and agent position for avoid collision with obstacles
+            self.build_agent_position()
+            self.build_goal_position()
+
+            self.last_dist_goal = self.dist_goal()
 
         self.world_info.world_config_dict = self._build_world_config(self.world_info.layout)
 
