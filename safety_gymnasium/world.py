@@ -257,8 +257,8 @@ class World:  # pylint: disable=too-many-instance-attributes
         ### <camera name="fixedfar" pos="0 0 6" zaxis="0 0 1"/>
 
         pos = {
-            'xp': 1 * np.cos(theta) + (1) * np.sin(theta),
-            'yp': 1 * (-np.sin(theta)) + (1) * np.cos(theta),
+            'xp': 0 * np.cos(theta) + (-2) * np.sin(theta),
+            'yp': 0 * (-np.sin(theta)) + (-2) * np.cos(theta),
             'zp': 2,
         }
         # track_camera = xmltodict.parse(
@@ -273,7 +273,7 @@ class World:  # pylint: disable=too-many-instance-attributes
         track_camera = xmltodict.parse(
             """<b>
             <camera name="track" mode="track" pos="{xp} {yp} {zp}"
-                zaxis="0 0 1"/>
+                xyaxes="{x1} {x2} {x3} {y1} {y2} {y3}"/>
             </b>""".format(
                 **pos,
                 **xyaxes,
