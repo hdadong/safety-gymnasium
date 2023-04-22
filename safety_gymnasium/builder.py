@@ -98,6 +98,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         height: int = 256,
         camera_id: int = None,
         camera_name: str = None,
+        fixed_obstacles: bool = False,
     ) -> None:
         """Initialize the builder.
 
@@ -125,6 +126,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         self.task_id: str = task_id
         self.config: dict = config
+        self.config['fixed_obstacles'] = fixed_obstacles
         self._seed: int = None
         self._setup_simulation()
 

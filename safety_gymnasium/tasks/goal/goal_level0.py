@@ -78,7 +78,8 @@ class GoalLevel0(BaseTask):
         else:
             # Sample object positions
             self.world_info.layout = self.random_generator.build_layout()
-            self.world_info.layout.update(self.last_layout)
+            if self.fixed_obstacles:
+                self.world_info.layout.update(self.last_layout)
 
         self.world_info.world_config_dict = self._build_world_config(self.world_info.layout)
 
