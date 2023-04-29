@@ -238,7 +238,7 @@ class World:  # pylint: disable=too-many-instance-attributes
         # Add cameras to the XML dictionary
         cameras = xmltodict.parse(
             """<b>
-            <camera name="fixednear" pos="0 -2 2" zaxis="0 -1 1"/>
+            <camera name="fixednear" pos="0 -3.0 3.0" zaxis="0 -1 1.3"/>
             <camera name="fixedfar" pos="0 0 6" zaxis="0 0 1"/>
             </b>""",
         )

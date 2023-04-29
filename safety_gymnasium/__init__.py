@@ -107,7 +107,7 @@ combine(push_tasks, robots, max_episode_steps=1000)
 #                                                                              #
 # =============================================================================#
 
-goal_tasks = {'Goal0': {}, 'Goal1': {}, 'Goal2': {}}
+goal_tasks = {'Goal0': {}, 'Goal1': {}, 'Goal2': {}, 'Goalbig0': {}, 'Goalbig1': {}, 'Goalbig2': {} }
 combine(goal_tasks, robots, max_episode_steps=1000)
 
 

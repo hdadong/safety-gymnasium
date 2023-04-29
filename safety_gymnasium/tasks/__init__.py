@@ -23,6 +23,9 @@ from safety_gymnasium.tasks.circle.circle_level2 import CircleLevel2
 from safety_gymnasium.tasks.goal.goal_level0 import GoalLevel0
 from safety_gymnasium.tasks.goal.goal_level1 import GoalLevel1
 from safety_gymnasium.tasks.goal.goal_level2 import GoalLevel2
+from safety_gymnasium.tasks.goal_bigger.goal_level0 import GoalbigLevel0
+from safety_gymnasium.tasks.goal_bigger.goal_level1 import GoalbigLevel1
+from safety_gymnasium.tasks.goal_bigger.goal_level2 import GoalbigLevel2
 from safety_gymnasium.tasks.push.push_level0 import PushLevel0
 from safety_gymnasium.tasks.push.push_level1 import PushLevel1
 from safety_gymnasium.tasks.push.push_level2 import PushLevel2

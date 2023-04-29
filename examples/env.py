@@ -28,10 +28,10 @@ import cv2
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name,  render_mode='rgb_array', camera_name='vision_back', height=256, width=256)
+    env = safety_gymnasium.make(env_name,  render_mode='rgb_array', camera_name='fixednear', height=256, width=256, fixed_obstacles=False)
 
     # env = safety_gymnasium.make(env_name, render_mode='human')
-    obs, info = env.reset()  # pylint: disable=unused-variable
+    obs, info = env.reset(seed=0)  # pylint: disable=unused-variable
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
     terminated, truncated = False, False
@@ -48,30 +48,30 @@ def run_random(env_name):
             print(f'Episode Return: {ep_ret} \t Episode Cost: {ep_cost}')
             ep_ret, ep_cost = 0, 0
             obs, info = env.reset()  # pylint: disable=unused-variable
-            save_video(
-                frames=render_list_back,
-                video_folder=DIR,
-                name_prefix='test_vision_output1',
-                fps=30,
-            )
-            save_video(
-                frames=render_list_front,
-                video_folder=DIR,
-                name_prefix='test_vision_output2',
-                fps=30,
-            )
+            # save_video(
+            #     frames=render_list_back,
+            #     video_folder=DIR,
+            #     name_prefix='test_vision_output1',
+            #     fps=30,
+            # )
+            # save_video(
+            #     frames=render_list_front,
+            #     video_folder=DIR,
+            #     name_prefix='test_vision_output2',
+            #     fps=30,
+            # )
             save_video(
                 frames=render_list_far,
                 video_folder=DIR,
                 name_prefix='test_vision_output3',
                 fps=30,
             )
-            save_video(
-                frames=render_list_far_concat,
-                video_folder=DIR,
-                name_prefix='test_vision_output4',
-                fps=30,
-            )
+            # save_video(
+            #     frames=render_list_far_concat,
+            #     video_folder=DIR,
+            #     name_prefix='test_vision_output4',
+            #     fps=30,
+            # )
             render_list_back = []
             render_list_front = []
             render_list_left = []
@@ -86,19 +86,20 @@ def run_random(env_name):
         # image = cv2.resize(
         # image, (64,32), interpolation=cv2.INTER_AREA)
         # render_list_far_resize.append(image)
-        render_list_far.append(env.task.render(width=256, height=256, mode='rgb_array', camera_name='fixedfar', cost={}))
-        render_list_back.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision', cost={}))
-        render_list_front.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_back', cost={}))
-        render_list_left.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_left', cost={}))
-        render_list_right.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_right', cost={}))
+        render_list_far.append(env.render())
+        #render_list_far.append(env.task.render(width=256, height=256, mode='rgb_array', camera_name='vision', cost={}))
+        # render_list_back.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision', cost={}))
+        # render_list_front.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_back', cost={}))
+        # render_list_left.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_left', cost={}))
+        # render_list_right.append(env.task.render(width=128, height=256, mode='rgb_array', camera_name='vision_right', cost={}))
 
-        image_concat = np.concatenate((render_list_front[-1], render_list_left[-1], render_list_back[-1],render_list_right[-1] ), axis=1)
-        render_list_far_concat.append(image_concat)
+        # image_concat = np.concatenate((render_list_front[-1], render_list_left[-1], render_list_back[-1],render_list_right[-1] ), axis=1)
+        # render_list_far_concat.append(image_concat)
 
         #print(render_list_far[0].shape)
         #print(np.concatenate((render_list_back[0], render_list_front[0]), axis=0).shape)
         # pylint: disable-next=unused-variable
-        obs, reward, cost, terminated, truncated, info = env.step([1.0,0.05])
+        obs, reward, cost, terminated, truncated, info = env.step(act)
 
         ep_ret += reward
         ep_cost += cost
@@ -106,6 +107,6 @@ def run_random(env_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', default='SafetyPointGoal2-v0')
+    parser.add_argument('--env', default='SafetyCarGoalbig2-v0')
     args = parser.parse_args()
     run_random(args.env)
