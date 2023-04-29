@@ -21,7 +21,7 @@ COLOR = {
     # Distinct colors for different types of objects.
     # For now this is mostly used for visualization.
     # This also affects the vision observation, so if training from pixels.
-    'push_box': np.array([1, 1, 0, 1]),
+    'push_box': np.array([1, 1, 0, 0.25]),
     'button': np.array([1, 0.5, 0, 1]),
     'goal': np.array([0, 1, 0, 1]),
     'vase': np.array([0, 1, 1, 1]),
