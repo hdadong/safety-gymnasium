@@ -24,7 +24,7 @@ from safety_gymnasium.version import __version__
 __all__ = ['register', 'make', 'vector']
 
 VERSION = 'v0'
-ROBOT_NAMES = ('Point', 'Car', 'Racecar', 'Ant')
+ROBOT_NAMES = ('Point', 'Car', 'Doggo', 'Racecar', 'Ant')
 MAKE_VISION_ENVIRONMENTS = True
 MAKE_DEBUG_ENVIRONMENTS = True
 
@@ -107,7 +107,7 @@ combine(push_tasks, robots, max_episode_steps=1000)
 #                                                                              #
 # =============================================================================#
 
-goal_tasks = {'Goal0': {}, 'Goal1': {}, 'Goal2': {}, 'Goalbig0': {}, 'Goalbig1': {}, 'Goalbig2': {} }
+goal_tasks = {'Goal0': {}, 'Goal1': {}, 'Goal2': {}, 'Goal3': {}, 'Goalbig0': {}, 'Goalbig1': {}, 'Goalbig2': {} }
 combine(goal_tasks, robots, max_episode_steps=1000)
 
 
