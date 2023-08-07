@@ -209,6 +209,15 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             cost['agent_0'].update(obj_cost['agent_0']) if 'agent_0' in obj_cost else None
             cost['agent_1'].update(obj_cost['agent_1']) if 'agent_1' in obj_cost else None
 
+        for contact in self.data.contact[: self.data.ncon]:
+            geom_ids = [contact.geom1, contact.geom2]
+            geom_names = sorted([self.model.geom(g).name for g in geom_ids])
+            if any(n in self.agent.body_info[1].geom_names for n in geom_names) and any(
+                n in self.agent.body_info[0].geom_names for n in geom_names
+            ):
+                cost['agent_0']['cost_contact_other'] = 1
+                cost['agent_1']['cost_contact_other'] = 1
+
         # Sum all costs into single total cost
         for agent_cost in cost.values():
             agent_cost['cost_sum'] = sum(v for k, v in agent_cost.items() if k.startswith('cost_'))
@@ -242,13 +251,18 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             width, height = self.vision_env_conf.vision_size
             rows, cols = height, width
             self.vision_env_conf.vision_size = (rows, cols)
-            obs_space_dict['vision'] = gymnasium.spaces.Box(
+            obs_space_dict['vision_0'] = gymnasium.spaces.Box(
                 0,
                 255,
                 (*self.vision_env_conf.vision_size, 3),
                 dtype=np.uint8,
             )
-
+            obs_space_dict['vision_1'] = gymnasium.spaces.Box(
+                0,
+                255,
+                (*self.vision_env_conf.vision_size, 3),
+                dtype=np.uint8,
+            )
         self.obs_info.obs_space_dict = gymnasium.spaces.Dict(obs_space_dict)
 
         if self.observation_flatten:
@@ -393,7 +407,8 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                 obs[obstacle.name + '_comp'] = self._obs_compass(obstacle.pos)
 
         if self.observe_vision:
-            obs['vision'] = self._obs_vision()
+            obs['vision_0'] = self._obs_vision()
+            obs['vision_1'] = self._obs_vision(camera_name='vision1')
 
         assert self.obs_info.obs_space_dict.contains(
             obs,
@@ -518,7 +533,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         assert vec.shape == (self.compass_conf.shape,), f'Bad vec {vec}'
         return vec
 
-    def _obs_vision(self) -> np.ndarray:
+    def _obs_vision(self, camera_name='vision') -> np.ndarray:
         """Return pixels from the agent camera.
 
         Note:
@@ -529,7 +544,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         """
         rows, cols = self.vision_env_conf.vision_size
         width, height = cols, rows
-        return self.render(width, height, mode='rgb_array', camera_name='vision', cost={})
+        return self.render(width, height, mode='rgb_array', camera_name=camera_name, cost={'agent_0': {}, 'agent_1': {}})
 
     def _ego_xy(self, pos: np.ndarray) -> np.ndarray:
         """Return the egocentric XY vector to a position from the agent."""

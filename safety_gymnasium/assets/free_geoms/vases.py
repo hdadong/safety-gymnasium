@@ -46,6 +46,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
     displace_threshold: float = 1e-3  # Threshold for displacement being "real"
     velocity_cost: float = 1.0  # Cost (per step) per m/s of velocity for a vase
     velocity_threshold: float = 1e-4  # Ignore very small velocities
+    last_contact = dict([(f'vase{i}', 0) for i in range(20)])
 
     color: np.array = COLOR['vase']
     group: np.array = GROUP['vase']
@@ -81,6 +82,8 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                     n in self.agent.body_info[0].geom_names for n in geom_names
                 ):
                     # pylint: disable-next=no-member
+                    self.last_contact[geom_names[0]] = 0
+                    self.last_contact[geom_names[1]] = 0
                     cost_0['cost_vases_contact'] += self.contact_cost
 
         # Displacement processing
@@ -96,7 +99,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                         ),
                     ),
                 )
-                if dist > self.displace_threshold:
+                if dist > self.displace_threshold and self.last_contact[name] == 0:
                     cost_0['cost_vases_displace'] += dist * self.displace_cost
 
         # Velocity processing
@@ -108,7 +111,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                 vel = np.sqrt(
                     np.sum(np.square(get_body_xvelp(self.engine.model, self.engine.data, name))),
                 )
-                if vel >= self.velocity_threshold:
+                if vel >= self.velocity_threshold and self.last_contact[name] == 0:
                     cost_0['cost_vases_velocity'] += vel * self.velocity_cost
 
         cost_1 = cost['agent_1']
@@ -122,6 +125,8 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                     n in self.agent.body_info[1].geom_names for n in geom_names
                 ):
                     # pylint: disable-next=no-member
+                    self.last_contact[geom_names[0]] = 1
+                    self.last_contact[geom_names[1]] = 1
                     cost_1['cost_vases_contact'] += self.contact_cost
 
         # Displacement processing
@@ -137,7 +142,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                         ),
                     ),
                 )
-                if dist > self.displace_threshold:
+                if dist > self.displace_threshold and self.last_contact[name] == 1:
                     cost_1['cost_vases_displace'] += dist * self.displace_cost
 
         # Velocity processing
@@ -149,7 +154,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
                 vel = np.sqrt(
                     np.sum(np.square(get_body_xvelp(self.engine.model, self.engine.data, name))),
                 )
-                if vel >= self.velocity_threshold:
+                if vel >= self.velocity_threshold and self.last_contact[name] == 1:
                     cost_1['cost_vases_velocity'] += vel * self.velocity_cost
 
         return cost

@@ -48,7 +48,7 @@ class Ant(BaseAgent):
 
     def is_alive(self):
         """Die if it touches the ground."""
-        return self.engine.data.body('agent').xpos.copy()[2] > 0.08
+        return self.engine.data.body('agent').xpos.copy()[2] > 0.08 and self.engine.data.body('agent1').xpos.copy()[2] > 0.08
 
     def reset(self):
         """Improved spawning behavior of Ant agent.
@@ -57,10 +57,12 @@ class Ant(BaseAgent):
         policies better exploration and occasionally generates forward
         movements.
         """
-        for i in range(self.body_info.nu):
+        for i in range(self.body_info[0].nu):
             noise = self.random_generator.uniform(low=-0.1, high=0.1)
             pos = noise if i % 2 == 0 else np.pi / 2 + noise
             joint_id = self.engine.model.actuator(i).trnid
+            joint_id1 = self.engine.model.actuator(i + 8).trnid
             if i in (3, 5):
                 pos *= -1
             self.engine.data.joint(joint_id[0]).qpos = pos
+            self.engine.data.joint(joint_id1[0]).qpos = pos

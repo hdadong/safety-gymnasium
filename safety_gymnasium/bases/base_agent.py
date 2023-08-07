@@ -215,10 +215,10 @@ class BaseAgent(abc.ABC):  # pylint: disable=too-many-instance-attributes
         Access directly from mujoco instance created on agent xml model.
         """
         for i in range(2):
-            self.body_info[i].nq = self.engine.model.nq / 2
-            self.body_info[i].nv = self.engine.model.nv / 2
-            self.body_info[i].nu = self.engine.model.nu / 2
-            self.body_info[i].nbody = self.engine.model.nbody / 2
+            self.body_info[i].nq = int(self.engine.model.nq / 2)
+            self.body_info[i].nv = int(self.engine.model.nv / 2)
+            self.body_info[i].nu = int(self.engine.model.nu / 2)
+            self.body_info[i].nbody = int(self.engine.model.nbody / 2)
             self.body_info[i].geom_names = [
                 self.engine.model.geom(i).name
                 for i in range(self.engine.model.ngeom)
