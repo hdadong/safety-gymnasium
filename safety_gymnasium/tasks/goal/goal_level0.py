@@ -68,7 +68,7 @@ class GoalLevel0(BaseTask):
 
         if self.goal_achieved[1]:
             reward['agent_1'] += self.goal_blue.reward_goal
-
+        reward = reward['agent_1'] + reward['agent_0']
         return reward
 
     def specific_reset(self):

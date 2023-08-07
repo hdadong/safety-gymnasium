@@ -535,10 +535,10 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
                 offset += self.render_conf.lidar_offset_delta
 
         # Add indicator for nonzero cost
-        if cost['agent_0'].get('cost_sum', 0) > 0:
-            self._render_sphere(self.agent.pos_0, 0.25, COLOR['red'], alpha=0.5)
-        if cost['agent_1'].get('cost_sum', 0) > 0:
-            self._render_sphere(self.agent.pos_1, 0.25, COLOR['red'], alpha=0.5)
+        # if cost['agent_0'].get('cost_sum', 0) > 0:
+        #     self._render_sphere(self.agent.pos_0, 0.25, COLOR['red'], alpha=0.5)
+        # if cost['agent_1'].get('cost_sum', 0) > 0:
+        #     self._render_sphere(self.agent.pos_1, 0.25, COLOR['red'], alpha=0.5)
 
         # Draw vision pixels
         if mode in {'rgb_array', 'depth_array'}:

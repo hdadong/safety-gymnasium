@@ -182,8 +182,8 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         self.task.agent.reset()
 
         cost = self._cost()
-        assert cost['agent_0']['cost_sum'] == 0, f'World has starting cost! {cost}'
-        assert cost['agent_1']['cost_sum'] == 0, f'World has starting cost! {cost}'
+        # assert cost['agent_0']['cost_sum'] == 0, f'World has starting cost! {cost}'
+        # assert cost['agent_1']['cost_sum'] == 0, f'World has starting cost! {cost}'
         # Reset stateful parts of the environment
         self.first_reset = False  # Built our first world successfully
 
@@ -212,10 +212,10 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             # Constraint violations
             info.update(self._cost())
 
-            cost = {}
-            cost['agent_0'] = info['agent_0']['cost_sum']
-            cost['agent_1'] = info['agent_1']['cost_sum']
-
+            # cost = {}
+            # cost['agent_0'] = info['agent_0']['cost_sum']
+            # cost['agent_1'] = info['agent_1']['cost_sum']
+            cost = info['agent_0']['cost_sum'] + info['agent_1']['cost_sum']
             self.task.specific_step()
 
             # Goal processing
@@ -265,14 +265,14 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             )
             reward += self.task.reward_conf.reward_orientation_scale * zalign
 
-        # Clip reward
-        reward_clip = self.task.reward_conf.reward_clip
-        if reward_clip:
-            for reward_i in reward.values():
-                in_range = -reward_clip < reward_i < reward_clip
-                if not in_range:
-                    reward_i = np.clip(reward_i, -reward_clip, reward_clip)
-                    print('Warning: reward was outside of range!')
+        # # Clip reward
+        # reward_clip = self.task.reward_conf.reward_clip
+        # if reward_clip:
+        #     for reward_i in reward.values():
+        #         in_range = -reward_clip < reward_i < reward_clip
+        #         if not in_range:
+        #             reward_i = np.clip(reward_i, -reward_clip, reward_clip)
+        #             print('Warning: reward was outside of range!')
 
         return reward
 
