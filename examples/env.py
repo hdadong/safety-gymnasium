@@ -17,11 +17,14 @@
 import argparse
 
 import safety_gymnasium
+import os 
+os.environ['MUJOCO_GL'] = 'egl'
 
-
+if 'MUJOCO_GL' not in os.environ:
+    os.environ['MUJOCO_GL'] = 'egl'
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name, render_mode='human')
+    env = safety_gymnasium.make(env_name)
     obs, info = env.reset()  # pylint: disable=unused-variable
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
@@ -37,13 +40,13 @@ def run_random(env_name):
         assert env.action_space.contains(act)
         # pylint: disable-next=unused-variable
         obs, reward, cost, terminated, truncated, info = env.step(act)
-
-        ep_ret += reward['agent_0']
-        ep_cost += cost['agent_0']
+        print(ep_ret, reward)
+        ep_ret += reward
+        ep_cost += cost
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', default='SafetyPointGoal0Debug-v0')
+    parser.add_argument('--env', default='SafetyPointGoal2-v0')
     args = parser.parse_args()
     run_random(args.env)

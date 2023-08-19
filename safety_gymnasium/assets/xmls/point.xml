@@ -42,8 +42,8 @@ Copyright 2022-2023 OmniSafe Team. All Rights Reserved.
       <joint type="slide" axis="1 0 0" name="x1" damping="0.01"/>
       <joint type="slide" axis="0 1 0" name="y1" damping="0.01"/>
       <joint type="hinge" axis="0 0 1" name="z1" damping="0.005"/>
-      <geom name="agent1" type="sphere" size=".1" friction="1 0.01 0.01" rgba="0.0039 0.1529 0.3961 1"/>
-      <geom name="pointarrow1" pos="0.1 0 0" size="0.05 0.05 0.05" type="box" rgba="0.0039 0.1529 0.3961 1"/>
+      <geom name="agent1" type="sphere" size=".1" friction="1 0.01 0.01"/>
+      <geom name="pointarrow1" pos="0.1 0 0" size="0.05 0.05 0.05" type="box"/>
       <site name="agent1" rgba="1 0 0 .1"/>
     </body>
   </worldbody>

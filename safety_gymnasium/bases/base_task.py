@@ -352,15 +352,15 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             raise ResamplingError('Failed to generate goal')
         # Move goal geom to new layout position
         if self.goal_achieved[0]:
-            self.world_info.world_config_dict['geoms']['goal_red']['pos'][
+            self.world_info.world_config_dict['geoms']['goal_red1']['pos'][
                 :2
-            ] = self.world_info.layout['goal_red']
-            self._set_goal('goal_red', self.world_info.layout['goal_red'])
+            ] = self.world_info.layout['goal_red1']
+            self._set_goal('goal_red1', self.world_info.layout['goal_red1'])
         if self.goal_achieved[1]:
-            self.world_info.world_config_dict['geoms']['goal_blue']['pos'][
+            self.world_info.world_config_dict['geoms']['goal_red2']['pos'][
                 :2
-            ] = self.world_info.layout['goal_blue']
-            self._set_goal('goal_blue', self.world_info.layout['goal_blue'])
+            ] = self.world_info.layout['goal_red2']
+            self._set_goal('goal_red2', self.world_info.layout['goal_red2'])
         mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
 
     def _placements_dict_from_object(self, object_name: dict) -> dict:
