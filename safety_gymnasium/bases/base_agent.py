@@ -310,6 +310,7 @@ class BaseAgent(abc.ABC):  # pylint: disable=too-many-instance-attributes
             noise (np.ndarray): The noise to add to the action.
         """
         action = np.array(action, copy=False)  # Cast to ndarray
+        action = [action[0], action[2], action[1], action[3]]
 
         # Set action
         action_range = self.engine.model.actuator_ctrlrange
