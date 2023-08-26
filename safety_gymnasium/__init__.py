@@ -352,3 +352,53 @@ __combine_multi(multi_goal_tasks, robots, max_episode_steps=1000)
 # ----------------------------------------
 cover_goal_tasks = {'CoverGoal0': {}, 'CoverGoal1': {}, 'CoverGoal2': {}}
 __combine_multi(cover_goal_tasks, robots, max_episode_steps=1000)
+
+
+def __combine_language(tasks, agents, max_episode_steps):
+    """Combine tasks and agents together to register environment tasks."""
+    for task_name, task_config in tasks.items():
+        # Vector inputs
+        for robot_name in agents:
+            env_id = f'{PREFIX}{robot_name}{task_name}-{VERSION}'
+            combined_config = copy.deepcopy(task_config)
+            combined_config.update({'agent_name': robot_name})
+
+            __register_helper(
+                env_id=env_id,
+                entry_point='safety_gymnasium.tasks.language.builder:Builder',
+                spec_kwargs={'config': combined_config, 'task_id': env_id},
+                max_episode_steps=max_episode_steps,
+                disable_env_checker=True,
+            )
+
+            if MAKE_VISION_ENVIRONMENTS:
+                # Vision inputs
+                vision_env_name = f'{PREFIX}{robot_name}{task_name}Vision-{VERSION}'
+                vision_config = {
+                    'observe_vision': True,
+                    'observation_flatten': False,
+                }
+                vision_config.update(combined_config)
+                __register_helper(
+                    env_id=vision_env_name,
+                    entry_point='safety_gymnasium.tasks.language.builder:Builder',
+                    spec_kwargs={'config': vision_config, 'task_id': env_id},
+                    max_episode_steps=max_episode_steps,
+                    disable_env_checker=True,
+                )
+
+            if MAKE_DEBUG_ENVIRONMENTS and robot_name in ['Point', 'Car', 'Racecar']:
+                # Keyboard inputs for debugging
+                debug_env_name = f'{PREFIX}{robot_name}{task_name}Debug-{VERSION}'
+                debug_config = {'debug': True}
+                debug_config.update(combined_config)
+                __register_helper(
+                    env_id=debug_env_name,
+                    entry_point='safety_gymnasium.tasks.language.builder:Builder',
+                    spec_kwargs={'config': debug_config, 'task_id': env_id},
+                    max_episode_steps=max_episode_steps,
+                    disable_env_checker=True,
+                )
+
+language_goal_tasks = {'LanguageGoal0': {}, 'LanguageGoal1': {}, 'LanguageGoal2': {}}
+__combine_language(language_goal_tasks, robots, max_episode_steps=1000)

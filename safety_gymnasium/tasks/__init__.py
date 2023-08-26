@@ -32,6 +32,15 @@ from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level1 
 from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level2 import (
     CoverGoalLevel2,
 )
+from safety_gymnasium.tasks.language.tasks.language_goal.language_goal_level0 import (
+    LanguageGoalLevel0,
+)
+from safety_gymnasium.tasks.language.tasks.language_goal.language_goal_level1 import (
+    LanguageGoalLevel1,
+)
+from safety_gymnasium.tasks.language.tasks.language_goal.language_goal_level2 import (
+    LanguageGoalLevel2,
+)
 from safety_gymnasium.tasks.safe_navigation.button.button_level0 import ButtonLevel0
 from safety_gymnasium.tasks.safe_navigation.button.button_level1 import ButtonLevel1
 from safety_gymnasium.tasks.safe_navigation.button.button_level2 import ButtonLevel2
