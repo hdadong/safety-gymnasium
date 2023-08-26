@@ -36,7 +36,7 @@ class Point(BaseAgent):
         locations: Optional[list] = None,
         keepout: float = 0.4,
         rot: Optional[float] = None,
-        num: int = 2,
+        num: int = 1,
     ) -> None:
         self.actuator_index = np.array([0, 2])
         self.delta = 1

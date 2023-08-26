@@ -381,27 +381,49 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                     :2
                 ] = self.world_info.layout['goal_blue']
                 self._set_goal('goal_blue', self.world_info.layout['goal_blue'])
+
         elif self.goal_achieved.all():
+            for i in range(self.goals.num):
+                self.world_info.world_config_dict['geoms'][f'goal{i}']['pos'][:2] = self.world_info.layout[f'goal{i}']
+                self._set_goal('goals', self.world_info.layout[f'goal{i}'])
+        
+        elif  self.goal_achieved.any() and 'language'  in self.__class__.__name__.lower():
+            print("hhaha")
             for i in range(self.goals.num):
                 self.world_info.world_config_dict['geoms'][f'goal{i}']['pos'][:2] = self.world_info.layout[f'goal{i}']
                 self._set_goal('goals', self.world_info.layout[f'goal{i}'])
         mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
 
-    def build_goals_position(self) -> None:
+    def build_goals_position(self, goal_achieved_array_index) -> None:
         """Build a new goal position, maybe with resampling due to hazards."""
-        # Resample until goal is compatible with layout
-        for i in range(self.goals.num):
-            if f'goal{i}' in self.world_info.layout:
-                del self.world_info.layout[f'goal{i}']
-        for _ in range(10000):  # Retries
-            if self.random_generator.sample_goals_position(num=self.goals.num):
-                break
+
+        if goal_achieved_array_index == -1:
+            # Resample until goal is compatible with layout
+            for i in range(self.goals.num):
+                if f'goal{i}' in self.world_info.layout:
+                    del self.world_info.layout[f'goal{i}']
+            for _ in range(10000):  # Retries
+                if self.random_generator.sample_goals_position_all(num=self.goals.num):
+                    break
+            else:
+                raise ResamplingError('Failed to generate goal')
+            for i in range(self.goals.num):
+                self.world_info.world_config_dict['geoms'][f'goal{i}']['pos'][:2] = self.world_info.layout[f'goal{i}']
+                self._set_goal(f'goal{i}', self.world_info.layout[f'goal{i}'])
+            mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
         else:
-            raise ResamplingError('Failed to generate goal')
-        for i in range(self.goals.num):
-            self.world_info.world_config_dict['geoms'][f'goal{i}']['pos'][:2] = self.world_info.layout[f'goal{i}']
-            self._set_goal(f'goal{i}', self.world_info.layout[f'goal{i}'])
-        mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
+            # Resample until goal is compatible with layout
+            if f'goal{goal_achieved_array_index}' in self.world_info.layout:
+                del self.world_info.layout[f'goal{goal_achieved_array_index}']
+            for _ in range(10000):  # Retries
+                if self.random_generator.sample_goals_position(goal_achieved_array_index):
+                    break
+            else:
+                raise ResamplingError('Failed to generate goal')
+
+            self.world_info.world_config_dict['geoms'][f'goal{goal_achieved_array_index}']['pos'][:2] = self.world_info.layout[f'goal{goal_achieved_array_index}']
+            self._set_goal(f'goal{goal_achieved_array_index}', self.world_info.layout[f'goal{goal_achieved_array_index}'])
+            mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
 
     def _placements_dict_from_object(self, object_name: dict) -> dict:
         """Get the placements dict subset just for a given object name."""

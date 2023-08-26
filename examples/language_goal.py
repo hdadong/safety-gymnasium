@@ -21,7 +21,7 @@ import safety_gymnasium
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name, render_mode='human', agent_num=2)
+    env = safety_gymnasium.make(env_name, render_mode='human', agent_num=1)
     obs, _ = env.reset()
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
