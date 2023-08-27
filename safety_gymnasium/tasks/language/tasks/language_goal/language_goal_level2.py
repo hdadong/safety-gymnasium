@@ -25,9 +25,9 @@ class LanguageGoalLevel2(LanguageGoalLevel1):
         super().__init__(config=config, agent_num=agent_num)
         # pylint: disable=no-member
 
-        self.placements_conf.extents = [-2, -2, 2, 2]
+        self.placements_conf.extents = [-2.0, -2.0, 2.0, 2.0]
 
         self.hazards.num = 5
-        self.vases.num = 5
+        self.vases.num = 7
         self.vases.is_constrained = True
         self.contact_other_cost = 1.0

@@ -23,14 +23,14 @@ class LanguageGoalLevel0(BaseTask):
     def __init__(self, config, agent_num) -> None:
         super().__init__(config=config, agent_num=agent_num)
 
-        self.placements_conf.extents = [-1, -1, 1, 1]
+        self.placements_conf.extents = [-1.5, -1.5, 1.5, 1.5]
         self.goal_num = 2
         self.agent_num = agent_num
         self._add_geoms(
-            Goals(name='green_goals', color=np.array([0, 1, 0, 1]), keepout=0.305, num=self.goal_num),
+            Goals(size=0.2, name='green_goals', color=np.array([0, 1, 0, 1]), keepout=0.01, num=self.goal_num),
         )
         self._add_geoms(
-            Goals(name='red_goals', color=np.array([1, 0, 0, 1]), keepout=0.305, num=self.goal_num),
+            Goals(size=0.2,name='red_goals', color=np.array([1, 0, 0, 1]), keepout=0.01, num=self.goal_num),
         )
         self.goal_achieved_index = np.zeros(self.goal_num, dtype=bool)
         self.falsegoal_achieved_index = np.zeros(self.goal_num, dtype=bool)
@@ -53,7 +53,7 @@ class LanguageGoalLevel0(BaseTask):
         # pylint: disable=no-member
         reward = {f'agent_{i}': 0.0 for i in range(self.agent_num)}
 
-        if self.goal_achieved.all():
+        if self.goal_achieved_index.any():
             for index in range(self.agent_num):
                 reward[f'agent_{index}'] += self.green_goals.reward_goal
 
@@ -83,8 +83,8 @@ class LanguageGoalLevel0(BaseTask):
 
     def specific_reset(self):
         self.achieved_goal_name = ""
-        self.current_goal_color = "red" # TODO randomize    
-        print("the current goal color is: ", self.current_goal_color)
+        self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
+        print("the current goal color is", self.current_goal_color)
 
     def specific_step(self):
         pass
@@ -94,7 +94,7 @@ class LanguageGoalLevel0(BaseTask):
         self.build_goals_position(self.achieved_goal_name)
         if self.achieved_goal_name != "":
             self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
-            print("the current goal color is: ", self.current_goal_color)
+            print("the current goal color is", self.current_goal_color)
 
     @property
     def goal_achieved(self):
@@ -113,10 +113,11 @@ class LanguageGoalLevel0(BaseTask):
 
         goal_achieved_array_index = (np.where(self.goal_achieved_index)[0])
         if len(goal_achieved_array_index)!=0:
-            print("I get the goal!")
+            print("I reached the goal!")
             goal_achieved_array_index = goal_achieved_array_index[0]
             if self.current_goal_color == "green":
                 self.achieved_goal_name = "green_goal" + str(goal_achieved_array_index)
             elif self.current_goal_color == "red":
                 self.achieved_goal_name = "red_goal" + str(goal_achieved_array_index)
         return self.goal_achieved_index.any()
+
