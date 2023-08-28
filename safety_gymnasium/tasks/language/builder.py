@@ -213,14 +213,14 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         global_action = np.zeros(
             # pylint: disable-next=consider-using-generator
-            (sum([self.action_space(agent).shape[0] for agent in self.possible_agents]),),
+            (sum([self.action_space.shape[0] for agent in self.possible_agents]),),
         )
         if self.task.agents.num == 1:
             global_action = np.array(action['agent_0'], copy=False)
         else:
             for index, agent in enumerate(self.possible_agents):
                 action[agent] = np.array(action[agent], copy=False)  # cast to ndarray
-                if action[agent].shape != self.action_space(agent).shape:  # check action dimension
+                if action[agent].shape != self.action_space.shape:  # check action dimension
                     raise ValueError('Action dimension mismatch')
                 indexes = self.task.agents.actuator_index + self.task.agents.delta * index
                 global_action[indexes] = action[agent]
@@ -356,9 +356,10 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         ), 'When you use vision envs, you should not call this function explicitly.'
         return self.task.render(cost=self.cost, **asdict(self.render_parameters))
 
-    def action_space(self, agent: str) -> gymnasium.spaces.Box:
+    @property
+    def action_space(self) -> gymnasium.spaces.Box:
         """Helper to get action space."""
-        return self.task.action_space[agent]
+        return self.task.action_space['agent_0']
 
     @property
     def state(self):
@@ -379,8 +380,8 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
     def agents(self) -> list[str]:
         """Helper to get possible agents."""
         return self.task.agents.possible_agents
-
-    def observation_space(self, _: str) -> gymnasium.spaces.Box | gymnasium.spaces.Dict:
+    @property
+    def observation_space(self) -> gymnasium.spaces.Box | gymnasium.spaces.Dict:
         """Helper to get observation space."""
         return self.task.observation_space
 

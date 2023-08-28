@@ -21,7 +21,7 @@ import safety_gymnasium
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name, render_mode='rgb_array', agent_num=1)
+    env = safety_gymnasium.make(env_name, render_mode='human', agent_num=1,camera_name='vision', width=1024, height=1024)
     obs, _ = env.reset()
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
@@ -35,9 +35,8 @@ def run_random(env_name):
 
         act = {}
         for agent in env.agents:
-            assert env.observation_space(agent).contains(obs[agent])
-            act[agent] = env.action_space(agent).sample()
-            assert env.action_space(agent).contains(act[agent])
+            #print(env.action_space)
+            act[agent] = env.action_space.sample()
 
         obs, reward, cost, terminated, truncated, _ = env.step(act)
 
@@ -48,6 +47,6 @@ def run_random(env_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', default='SafetyPointLanguageGoal1-v0')
+    parser.add_argument('--env', default='SafetyPointLanguageGoal1Debug-v0')
     args = parser.parse_args()
     run_random(args.env)
