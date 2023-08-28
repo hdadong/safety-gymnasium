@@ -185,7 +185,13 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         cost = self._cost()
         for agent in self.possible_agents:
-            assert cost[agent]['cost_sum'] == 0, f'{agent} has starting cost! {cost}'
+            while(cost['agent_0']['cost_sum'] != 0):
+                print(f'{agent} has starting cost! {cost}')
+                self.task.reset()
+                self.task.specific_reset()
+                self.task.update_world()  # refresh specific settings
+                self.task.agents.reset()
+                cost = self._cost()
         # Reset stateful parts of the environment
         self.first_reset = False  # Built our first world successfully
 
