@@ -28,6 +28,6 @@ class LanguageGoalLevel1(LanguageGoalLevel0):
 
         self.placements_conf.extents = [-1.5, -1.5, 1.5, 1.5]
 
-        self._add_geoms(Hazards(num=5, keepout=0.18))
+        self._add_geoms(Hazards(num=6, keepout=0.18))
         self._add_free_geoms(Vases(num=1, is_constrained=False))
         self.contact_other_cost = 1.0
