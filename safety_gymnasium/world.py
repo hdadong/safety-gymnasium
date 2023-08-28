@@ -239,7 +239,7 @@ class World:  # pylint: disable=too-many-instance-attributes
         cameras = xmltodict.parse(
             """<b>
             <camera name="fixednear" pos="0 -3.0 3.0" zaxis="0 -1 1.3"/>
-            <camera name="fixedfar" pos="0 0 6" zaxis="0 0 1"/>
+            <camera name="fixedfar" pos="0 -5 5" zaxis="0 -1 1"/>
             </b>""",
         )
         worldbody['camera'] = cameras['b']['camera']
