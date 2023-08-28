@@ -205,7 +205,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         return (observations, infos)
 
     # pylint: disable=too-many-branches
-    def step(self, action: dict) -> tuple[np.ndarray, float, float, bool, bool, dict]:
+    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, float, bool, bool, dict]:
         """Take a step and return observation, reward, cost, terminated, truncated, info."""
         assert not self.done, 'Environment must be reset before stepping.'
 
@@ -216,15 +216,9 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             (sum([self.action_space.shape[0] for agent in self.possible_agents]),),
         )
         if self.task.agents.num == 1:
-            global_action = np.array(action['agent_0'], copy=False)
+            global_action = np.array(action, copy=False)
         else:
-            for index, agent in enumerate(self.possible_agents):
-                action[agent] = np.array(action[agent], copy=False)  # cast to ndarray
-                if action[agent].shape != self.action_space.shape:  # check action dimension
-                    raise ValueError('Action dimension mismatch')
-                indexes = self.task.agents.actuator_index + self.task.agents.delta * index
-                global_action[indexes] = action[agent]
-
+            raise NotImplementedError
         exception = self.task.simulation_forward(global_action)
         if exception:
             self.truncated = True
@@ -284,7 +278,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             truncateds[agents] = self.truncated
             infos[agents] = info
 
-        return observations, rewards, costs, terminateds, truncateds, infos
+        return observations['agent_0'], rewards['agent_0'], costs['agent_0'], terminateds['agent_0'], truncateds['agent_0'], infos
 
     def _reward(self) -> float:
         """Calculate the current rewards.

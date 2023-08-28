@@ -25,24 +25,23 @@ def run_random(env_name):
     obs, _ = env.reset()
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
-    terminated, truncated = {f'agent_{i}': False for i in range(env.num_agents)}, {f'agent_{i}': False for i in range(env.num_agents)}
+    print(env.action_space, env.observation_space)
+    terminated, truncated = False, False
     ep_ret, ep_cost = 0, 0
     while True:
-        if any(list(terminated.values())) or any(list(truncated.values())):
+        if (terminated) or (truncated):
             print(f'Episode Return: {ep_ret} \t Episode Cost: {ep_cost}')
             ep_ret, ep_cost = 0, 0
             obs, _ = env.reset()
 
-        act = {}
         for agent in env.agents:
-            #print(env.action_space)
-            act[agent] = env.action_space.sample()
+            act = env.action_space.sample()
 
         obs, reward, cost, terminated, truncated, _ = env.step(act)
 
         for agent in env.agents:
-            ep_ret += reward[agent]
-            ep_cost += cost[agent]
+            ep_ret += reward
+            ep_cost += cost
 
 
 if __name__ == '__main__':
