@@ -27,7 +27,7 @@ class LanguageGoalLevel2(LanguageGoalLevel1):
 
         self.placements_conf.extents = [-2.0, -2.0, 2.0, 2.0]
 
-        self.hazards.num = 7
-        self.vases.num = 7
+        self.hazards.num = 6
+        self.vases.num = 8
         self.vases.is_constrained = True
         self.contact_other_cost = 1.0

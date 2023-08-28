@@ -284,9 +284,9 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                 )
         obs_space_dict['language'] = gymnasium.spaces.Box(
                                 -1.0,
-                                1.0,
+                                20,
                                 (1,),
-                                dtype=np.float64,
+                                dtype=np.int64,
                             )
         self.obs_info.obs_space_dict = gymnasium.spaces.Dict(obs_space_dict)
 

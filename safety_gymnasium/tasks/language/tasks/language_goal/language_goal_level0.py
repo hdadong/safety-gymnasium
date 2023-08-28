@@ -19,6 +19,12 @@ from safety_gymnasium.tasks.language.assets.geoms.goal import Goals
 from safety_gymnasium.tasks.language.bases.base_task import BaseTask
 import numpy as np
 
+# 定义词汇表和单词到索引的映射
+vocab = ['The', 'the', 'goal', 'color', 'is', 'green', 'red', 'I', 'reached', '.']
+word_to_index = {word: index for index, word in enumerate(vocab)}
+
+
+
 class LanguageGoalLevel0(BaseTask):
 
     def __init__(self, config, agent_num) -> None:
@@ -28,10 +34,10 @@ class LanguageGoalLevel0(BaseTask):
         self.goal_num = 2
         self.agent_num = agent_num
         self._add_geoms(
-            Goals(size=0.2, name='green_goals', color=np.array([0, 1, 0, 1]), keepout=0.3, num=self.goal_num),
+            Goals(size=0.2, name='green_goals', color=np.array([0, 1, 0, 1]), keepout=0.18, num=self.goal_num),
         )
         self._add_geoms(
-            Goals(size=0.2,name='red_goals', color=np.array([1, 0, 0, 1]), keepout=0.3, num=self.goal_num),
+            Goals(size=0.2,name='red_goals', color=np.array([1, 0, 0, 1]), keepout=0.18, num=self.goal_num),
         )
         self.goal_achieved_index = np.zeros(self.goal_num, dtype=bool)
         self.falsegoal_achieved_index = np.zeros(self.goal_num, dtype=bool)
@@ -87,13 +93,16 @@ class LanguageGoalLevel0(BaseTask):
         """Return the observation of our agent."""
         # pylint: disable-next=no-member
         obs = super().obs()
-        obs['language'] = np.array([1.0]) #
         len_deque = len(self.language_deque)
         if len_deque != 0:
             language = self.language_deque.popleft()
-            print(language)
-        #print(obs['language'])
-
+            query_word = language
+            if query_word in word_to_index:
+                position = word_to_index[query_word]
+                obs['language'] = np.array([int(position)]) #
+                print(language, position)
+        else:
+            obs['language'] = np.array([int(-1)])
         assert self.obs_info.obs_space_dict.contains(
             obs,
         ), f'Bad obs {obs} {self.obs_info.obs_space_dict}'
@@ -105,7 +114,7 @@ class LanguageGoalLevel0(BaseTask):
         self.language_deque = deque()
 
         self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
-        language = "the current goal color is " + self.current_goal_color + " ."
+        language = "The goal color is " + self.current_goal_color + " ."
         # get the len of language
         token = language.split(' ')
         len_language = len(token)
@@ -117,7 +126,7 @@ class LanguageGoalLevel0(BaseTask):
         if np.random.rand() < 0.002:
             self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
             self.language_deque = deque()
-            language = "the current goal color is " + self.current_goal_color + " ."
+            language = "The goal color is " + self.current_goal_color + " ."
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
@@ -125,7 +134,7 @@ class LanguageGoalLevel0(BaseTask):
                 self.language_deque.append(token[i])
 
         if np.random.rand() < 0.008:
-            language = "the current goal color is " + self.current_goal_color + " ."
+            language = "The goal color is " + self.current_goal_color + " ."
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
@@ -153,17 +162,18 @@ class LanguageGoalLevel0(BaseTask):
 
         goal_achieved_array_index = (np.where(self.goal_achieved_index)[0])
         if len(goal_achieved_array_index)!=0:
-            language = "I reached the goal ."
+            goal_achieved_array_index = goal_achieved_array_index[0]
+            if self.current_goal_color == "green":
+                self.achieved_goal_name = "green_goal" + str(goal_achieved_array_index)
+                language = "I reached the green goal ."
+
+            elif self.current_goal_color == "red":
+                self.achieved_goal_name = "red_goal" + str(goal_achieved_array_index)
+                language = "I reached the red goal ."
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
             for i in range(len_language):
                 self.language_deque.append(token[i])
-
-            goal_achieved_array_index = goal_achieved_array_index[0]
-            if self.current_goal_color == "green":
-                self.achieved_goal_name = "green_goal" + str(goal_achieved_array_index)
-            elif self.current_goal_color == "red":
-                self.achieved_goal_name = "red_goal" + str(goal_achieved_array_index)
         return self.goal_achieved_index.any()
 
