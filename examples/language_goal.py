@@ -38,7 +38,7 @@ def run_random(env_name):
             act = env.action_space.sample()
 
         obs, reward, cost, terminated, truncated, _ = env.step(act)
-
+        #print(obs)
         for agent in env.agents:
             ep_ret += reward
             ep_cost += cost

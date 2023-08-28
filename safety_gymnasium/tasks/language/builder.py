@@ -202,7 +202,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             infos[agents] = info
 
         # Return an observation
-        return (observations, infos)
+        return (observations['agent_0'], infos['agent_0'])
 
     # pylint: disable=too-many-branches
     def step(self, action: np.ndarray) -> tuple[np.ndarray, float, float, bool, bool, dict]:
@@ -278,7 +278,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             truncateds[agents] = self.truncated
             infos[agents] = info
 
-        return observations['agent_0'], rewards['agent_0'], costs['agent_0'], terminateds['agent_0'], truncateds['agent_0'], infos
+        return observations['agent_0'], rewards['agent_0'], costs['agent_0'], terminateds['agent_0'], truncateds['agent_0'], infos['agent_0']
 
     def _reward(self) -> float:
         """Calculate the current rewards.
