@@ -137,7 +137,7 @@ class World:  # pylint: disable=too-many-instance-attributes
         if self._agent.num == 1:
             worldbody['body'] = [worldbody['body']]
         # Move agent position to starting position
-        if self._agent.num > 1:
+        if self._agent.num >= 1:
             for index in range(self._agent.num):  # pylint: disable=no-member
                 worldbody['body'][index]['@pos'] = convert(
                     # pylint: disable-next=no-member
