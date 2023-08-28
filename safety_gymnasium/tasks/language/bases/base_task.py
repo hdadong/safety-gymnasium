@@ -282,7 +282,12 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                     (*self.vision_env_conf.vision_size, 3),
                     dtype=np.uint8,
                 )
-
+        obs_space_dict['language'] = gymnasium.spaces.Box(
+                                -1.0,
+                                1.0,
+                                (1,),
+                                dtype=np.float64,
+                            )
         self.obs_info.obs_space_dict = gymnasium.spaces.Dict(obs_space_dict)
 
         if self.observation_flatten:
@@ -476,10 +481,6 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
 
             if self.observe_vision:
                 obs[f'vision__{index}'] = self._obs_vision(camera_name=f'vision__{index}')
-
-        assert self.obs_info.obs_space_dict.contains(
-            obs,
-        ), f'Bad obs {obs} {self.obs_info.obs_space_dict}'
 
         if self.observation_flatten:
             obs = gymnasium.spaces.utils.flatten(self.obs_info.obs_space_dict, obs)

@@ -219,7 +219,7 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self.agent_num = agent_num
         self.observe_vision = False  # Observe vision from the agent
         self.debug = False
-        self.observation_flatten = True  # Flatten observation into a vector
+        self.observation_flatten = False  # Flatten observation into a vector
         self._parse(config)
         self.agents = None
         self.action_noise: float = (
@@ -254,9 +254,6 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
     def _add_geoms(self, *geoms: Geom) -> None:
         """Register geom type objects into environments and set corresponding attributes."""
         for geom in geoms:
-            print(geom)
-            print(type(geom))
-            print(GEOMS_REGISTER)
             assert (
                 type(geom) in GEOMS_REGISTER
             ), 'Please figure out the type of object before you add it into envs.'
