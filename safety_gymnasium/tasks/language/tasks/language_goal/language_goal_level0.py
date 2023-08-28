@@ -22,6 +22,16 @@ import numpy as np
 # 定义词汇表和单词到索引的映射
 vocab = ['The', 'the', 'goal', 'color', 'is', 'green', 'red', 'I', 'reached', '.']
 word_to_index = {word: index for index, word in enumerate(vocab)}
+vocab_size = len(vocab)
+
+# 初始化一个全为0的One-Hot向量
+def one_hot(word, word_to_index, vocab_size):
+    vector = [0] * (vocab_size + 1)
+    if word in word_to_index:
+        vector[word_to_index[word]] = 1
+    else:
+        vector[vocab_size] = 1
+    return vector
 
 
 
@@ -97,11 +107,9 @@ class LanguageGoalLevel0(BaseTask):
         if len_deque != 0:
             language = self.language_deque.popleft()
             query_word = language
-            if query_word in word_to_index:
-                position = word_to_index[query_word]
-                obs['language'] = np.array([int(position)]) #
+            obs['language'] = one_hot(query_word, word_to_index, vocab_size) # np.array([int(position)])
         else:
-            obs['language'] = np.array([int(-1)])
+            obs['language'] = one_hot('no_word', word_to_index, vocab_size)
         assert self.obs_info.obs_space_dict.contains(
             obs,
         ), f'Bad obs {obs} {self.obs_info.obs_space_dict}'
