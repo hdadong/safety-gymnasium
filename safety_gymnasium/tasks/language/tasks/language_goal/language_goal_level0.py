@@ -100,7 +100,6 @@ class LanguageGoalLevel0(BaseTask):
             if query_word in word_to_index:
                 position = word_to_index[query_word]
                 obs['language'] = np.array([int(position)]) #
-                print(language, position)
         else:
             obs['language'] = np.array([int(-1)])
         assert self.obs_info.obs_space_dict.contains(
