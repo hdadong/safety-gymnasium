@@ -191,12 +191,12 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         state = self.task.obs()
         observations, infos = {}, {}
-        for agents in self.possible_agents:
-            observations[agents] = state
-            infos[agents] = info
+        # for agents in self.possible_agents:
+        #     observations[agents] = state
+        #     infos[agents] = info
 
         # Return an observation
-        return (observations, infos)
+        return (state, info)
 
     # pylint: disable=too-many-branches
     def step(self, action: dict) -> tuple[np.ndarray, float, float, bool, bool, dict]:
