@@ -101,7 +101,7 @@ class VisionEnvConf:
         vision_size (tuple): Size (width, height) of vision observation.
     """
 
-    vision_size = (256, 256)
+    vision_size = (64, 64)
 
 
 @dataclass
