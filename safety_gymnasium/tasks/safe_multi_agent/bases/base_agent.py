@@ -25,6 +25,7 @@ import gymnasium
 import mujoco
 import numpy as np
 from gymnasium import spaces
+from collections import OrderedDict
 
 import safety_gymnasium
 from safety_gymnasium.tasks.safe_multi_agent.utils.random_generator import RandomGenerator
@@ -235,22 +236,21 @@ class BaseAgent(abc.ABC):  # pylint: disable=too-many-instance-attributes
             local_geom_names = [geom_name + f'__{i}' for geom_name in global_geom_names]
             self.body_info[i].geom_names = local_geom_names
 
-    def _build_action_space(self) -> gymnasium.spaces.Box:
-        """Build the action space for this agent.
+    def _build_action_space(self) -> gymnasium.spaces.Dict:
+        """Construct observation space.  Happens only once during __init__ in Builder."""
+        act_space_dict = OrderedDict()  # See self.obs()
 
-        Access directly from mujoco instance created on agent xml model.
-        """
         bounds = self.engine.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T
-        obs_space = {}
         single_space = spaces.Box(
             low=low,
             high=high,
             dtype=np.float64,
         )
         for i in range(self.num):
-            obs_space[f'agent_{i}'] = single_space
-        return obs_space
+            act_space_dict[f'agent_{i}'] = single_space
+        act_space = gymnasium.spaces.Dict(act_space_dict)
+        return act_space
 
     def _init_jnt_sensors(self) -> None:  # pylint: disable=too-many-branches
         """Initialize joint sensors.
