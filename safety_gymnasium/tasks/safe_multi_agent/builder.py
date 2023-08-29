@@ -271,14 +271,14 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             self.render()
 
         state = self.task.obs()
-        observations, terminateds, truncateds, infos = {}, {}, {}, {}
-        for agents in self.possible_agents:
-            observations[agents] = state
-            terminateds[agents] = self.terminated
-            truncateds[agents] = self.truncated
-            infos[agents] = info
+        # observations, terminateds, truncateds, infos = {}, {}, {}, {}
+        # for agents in self.possible_agents:
+        #     observations[agents] = state
+        #     terminateds[agents] = self.terminated
+        #     truncateds[agents] = self.truncated
+        #     infos[agents] = info
 
-        return observations, rewards, costs, terminateds, truncateds, infos
+        return state, rewards['agent_0'], costs['agent_0'], self.terminated, self.truncated, info
 
     def _reward(self) -> float:
         """Calculate the current rewards.
