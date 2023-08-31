@@ -46,7 +46,7 @@ class Vases(FreeGeom):  # pylint: disable=too-many-instance-attributes
     displace_threshold: float = 1e-3  # Threshold for displacement being "real"
     velocity_cost: float = 1.0  # Cost (per step) per m/s of velocity for a vase
     velocity_threshold: float = 1e-4  # Ignore very small velocities
-    last_contact: dict = field(default_factory=lambda: {f'vase{i}': -1 for i in range(20)})
+    last_contact: dict = field(default_factory=lambda: {f'vase{i}': -1 for i in range(50)})
 
     color: np.array = COLOR['vase']
     group: np.array = GROUP['vase']
