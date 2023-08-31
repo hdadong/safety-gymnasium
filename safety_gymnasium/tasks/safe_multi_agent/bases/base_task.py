@@ -193,7 +193,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         self._is_load_static_geoms = False  # Whether to load static geoms in current task.
         self.static_geoms_names: dict
         self.static_geoms_contact_cost: float = None
-        self.contact_other_cost: float = None
+        self.contact_other_cost: float = 1.0
 
     def dist_goal(self) -> float:
         """Return the distance from the agent to the goal XY position."""
@@ -215,6 +215,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                 if f'agent_{index}' in obj_cost:
                     cost_index.update(obj_cost[f'agent_{index}'])
 
+        print(self.contact_other_cost)
         if self.contact_other_cost:
             for contact in self.data.contact[: self.data.ncon]:
                 geom_ids = [contact.geom1, contact.geom2]
@@ -227,7 +228,6 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                             ):
                                 cost_key = f'agent_{i}'
                                 cost[cost_key]['cost_contact_other'] = self.contact_other_cost
-
         if self._is_load_static_geoms and self.static_geoms_contact_cost:
             cost['cost_static_geoms_contact'] = 0.0
             for contact in self.data.contact[: self.data.ncon]:
