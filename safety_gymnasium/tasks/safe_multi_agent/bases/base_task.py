@@ -603,7 +603,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             height,
             mode='rgb_array',
             camera_name=camera_name,
-            cost={'agent_0': {}, 'agent_1': {}},
+            cost={'agent_0': {}, 'agent_1': {}, 'agent_2': {}, 'agent_3': {}, 'agent_4': {}, 'agent_5': {}, 'agent_6': {}, 'agent_7': {}},
         )
 
     def _ego_xy(self, pos: np.ndarray, index: int) -> np.ndarray:
