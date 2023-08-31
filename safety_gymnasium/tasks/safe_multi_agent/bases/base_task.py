@@ -403,6 +403,20 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             self._set_goal(f'goal{i}', self.world_info.layout[f'goal{i}'])
         mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
 
+    def build_special_goals_position(self, index) -> None:
+        """Build a new goal position, maybe with resampling due to hazards."""
+        # Resample until goal is compatible with layout
+        if f'goal{index}' in self.world_info.layout:
+            del self.world_info.layout[f'goal{index}']
+        for _ in range(10000):  # Retries
+            if self.random_generator.sample_special_goals_position(index):
+                break
+        else:
+            raise ResamplingError('Failed to generate goal')
+        self.world_info.world_config_dict['geoms'][f'goal{index}']['pos'][:2] = self.world_info.layout[f'goal{index}']
+        self._set_goal(f'goal{index}', self.world_info.layout[f'goal{index}'])
+        mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
+
     def _placements_dict_from_object(self, object_name: dict) -> dict:
         """Get the placements dict subset just for a given object name."""
         placements_dict = {}

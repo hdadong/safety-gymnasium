@@ -189,6 +189,18 @@ class RandomGenerator:
             self.layout[f'goal{i}'] = goal_xy
         return True
 
+    def sample_special_goals_position(self, index) -> bool:
+        """Sample a new goal position and return True, else False if sample rejected."""
+        placements, keepout = self.placements[f'goal{index}']
+        goal_xy = self.draw_placement(placements, keepout)
+        for other_name, other_xy in self.layout.items():
+            other_keepout = self.placements[other_name][1]
+            dist = np.sqrt(np.sum(np.square(goal_xy - other_xy)))
+            if dist < other_keepout + self.placements_margin + keepout:
+                return False
+        self.layout[f'goal{index}'] = goal_xy
+        return True
+
     def constrain_placement(self, placement: dict, keepout: float) -> tuple[float]:
         """Helper function to constrain a single placement by the keepout radius."""
         xmin, ymin, xmax, ymax = placement
