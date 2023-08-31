@@ -295,13 +295,13 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             reward += self.task.reward_conf.reward_orientation_scale * zalign
 
         # Clip reward
-        reward_clip = self.task.reward_conf.reward_clip
-        if reward_clip:
-            for reward_i in reward.values():
-                in_range = -reward_clip < reward_i < reward_clip
-                if not in_range:
-                    reward_i = np.clip(reward_i, -reward_clip, reward_clip)
-                    print('Warning: reward was outside of range!')
+        # reward_clip = self.task.reward_conf.reward_clip
+        # if reward_clip:
+        #     for reward_i in reward.values():
+        #         in_range = -reward_clip < reward_i < reward_clip
+        #         if not in_range:
+        #             reward_i = np.clip(reward_i, -reward_clip, reward_clip)
+        #             print('Warning: reward was outside of range!')
 
         return reward
 
