@@ -345,7 +345,7 @@ def __combine_multi(tasks, agents, max_episode_steps):
 
 # Multi Goal Environments
 # ----------------------------------------
-multi_goal_tasks = {'MultiGoal0': {}, 'MultiGoal1': {}, 'MultiGoal2': {}}
+multi_goal_tasks = {'MultiGoal0': {}, 'MultiGoal1': {}, 'MultiGoal2': {}, 'MultiGoal3': {}, 'MultiGoal4': {}}
 __combine_multi(multi_goal_tasks, robots, max_episode_steps=1000)
 
 # Cover Goal Environments

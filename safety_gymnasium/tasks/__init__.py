@@ -23,6 +23,12 @@ from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level1 
 from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level2 import (
     MultiGoalLevel2,
 )
+from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level3 import (
+    MultiGoalLevel3,
+)
+from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level4 import (
+    MultiGoalLevel4,
+)
 from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level0 import (
     CoverGoalLevel0,
 )
