@@ -38,12 +38,19 @@ class CoverGoalLevel0(BaseTask):
     def calculate_reward(self):
         """Determine reward depending on the agent and tasks."""
         # pylint: disable=no-member
-        reward = {f'agent_{i}': 0.0 for i in range(self.agents.num)}
+        reward_all = 0
+        self.goal_achieved_index = np.zeros(self.agents.num, dtype=bool)
 
-        if self.goal_achieved.all():
-            for index in range(self.agents.num):
-                reward[f'agent_{index}'] += self.goals.reward_goal
+        for index in range(self.agents.num):
+            dist_goal = np.array(self.dist_index_goals(index))
+            local_achieved = dist_goal <= self.goals.size
+            self.goal_achieved_index |= local_achieved
+            reward_all -= min(dist_goal)
 
+
+        if self.goal_achieved_index.all().all():
+            reward_all += 1000
+        reward = {f'agent_{i}': reward_all for i in range(self.agents.num)}
         return reward
 
     def specific_reset(self):
