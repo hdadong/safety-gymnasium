@@ -345,9 +345,9 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
           Each frame is a numpy.ndarray with shape (x, y), as with `depth_array`.
         """
         assert self.render_parameters.mode, 'Please specify the render mode when you make env.'
-        assert (
-            not self.task.observe_vision
-        ), 'When you use vision envs, you should not call this function explicitly.'
+        # assert (
+        #     not self.task.observe_vision
+        # ), 'When you use vision envs, you should not call this function explicitly.'
         return self.task.render(cost=self.cost, **asdict(self.render_parameters))
 
     @property
