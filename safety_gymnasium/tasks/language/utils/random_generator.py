@@ -188,26 +188,17 @@ class RandomGenerator:
         self.layout[goal_name] = goal_xy
         return True
 
-    def sample_goals_position_all(self, green_num=1,red_num=1) -> bool:
+    def sample_goals_position_all(self, color_list) -> bool:
         """Sample a new goal position and return True, else False if sample rejected."""
-        for i in range(green_num):
-            placements, keepout = self.placements[f'green_goal{i}']
+        for color in color_list:
+            placements, keepout = self.placements[color + '_goal']
             goal_xy = self.draw_placement(placements, keepout)
             for other_name, other_xy in self.layout.items():
                 other_keepout = self.placements[other_name][1]
                 dist = np.sqrt(np.sum(np.square(goal_xy - other_xy)))
                 if dist < other_keepout + self.placements_margin + keepout:
                     return False
-            self.layout[f'green_goal{i}'] = goal_xy
-        for i in range(red_num):
-            placements, keepout = self.placements[f'red_goal{i}']
-            goal_xy = self.draw_placement(placements, keepout)
-            for other_name, other_xy in self.layout.items():
-                other_keepout = self.placements[other_name][1]
-                dist = np.sqrt(np.sum(np.square(goal_xy - other_xy)))
-                if dist < other_keepout + self.placements_margin + keepout:
-                    return False
-            self.layout[f'red_goal{i}'] = goal_xy
+            self.layout[color + '_goal'] = goal_xy
         return True
 
     def constrain_placement(self, placement: dict, keepout: float) -> tuple[float]:

@@ -194,7 +194,8 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         self.static_geoms_names: dict
         self.static_geoms_contact_cost: float = None
         self.contact_other_cost: float = None
-
+        self.goal_color_list = None
+        self.vocab_size = None
     def dist_goal(self) -> float:
         """Return the distance from the agent to the goal XY position."""
         assert hasattr(self, 'goal'), 'Please make sure you have added goal into env.'
@@ -285,7 +286,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         obs_space_dict['language'] = gymnasium.spaces.Box(
                                 0,
                                 1,
-                                (11,),
+                                (self.vocab_size,),
                                 dtype=np.uint8,
                             )
         self.obs_info.obs_space_dict = gymnasium.spaces.Dict(obs_space_dict)
@@ -399,30 +400,27 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
                 self._set_goal('goals', self.world_info.layout[f'goal{i}'])
         mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
 
-    def build_goals_position(self, goal_name="") -> None:
+    def build_goals_position(self, reset_goal_color="") -> None:
         """Build a new goal position, maybe with resampling due to hazards."""
-
-        if goal_name == "":
+        if reset_goal_color == "":
             # Resample until goal is compatible with layout
-            for i in range(self.green_goals.num):
-                if f'green_goal{i}' in self.world_info.layout:
-                    del self.world_info.layout[f'green_goal{i}']
-                if f'red_goal{i}' in self.world_info.layout:
-                    del self.world_info.layout[f'red_goal{i}']
+            for color in self.goal_color_list:
+                if color + '_goal' in self.world_info.layout:
+                    del self.world_info.layout[color + '_goal']
+
             for _ in range(10000):  # Retries
-                if self.random_generator.sample_goals_position_all(green_num=self.green_goals.num, red_num=self.red_goals.num):
+                if self.random_generator.sample_goals_position_all(self.goal_color_list):
                     break
             else:
                 raise ResamplingError('Failed to generate goal')
-            for i in range(self.green_goals.num):
-                self.world_info.world_config_dict['geoms'][f'green_goal{i}']['pos'][:2] = self.world_info.layout[f'green_goal{i}']
-                self._set_goal(f'green_goal{i}', self.world_info.layout[f'green_goal{i}'])
-            for i in range(self.red_goals.num):
-                self.world_info.world_config_dict['geoms'][f'red_goal{i}']['pos'][:2] = self.world_info.layout[f'red_goal{i}']
-                self._set_goal(f'red_goal{i}', self.world_info.layout[f'red_goal{i}'])
+            for color in self.goal_color_list:
+                self.world_info.world_config_dict['geoms'][color + '_goal']['pos'][:2] = self.world_info.layout[color + '_goal']
+                self._set_goal(color + '_goal', self.world_info.layout[color + '_goal'])
+
             mujoco.mj_forward(self.model, self.data)  # pylint: disable=no-member
         else:
             # Resample until goal is compatible with layout
+            goal_name = reset_goal_color + '_goal'
             if goal_name in self.world_info.layout:
                 del self.world_info.layout[goal_name]
             for _ in range(10000):  # Retries

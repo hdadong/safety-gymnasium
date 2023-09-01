@@ -15,12 +15,13 @@
 """LanguageGoal level 0."""
 from collections import deque
 
-from safety_gymnasium.tasks.language.assets.geoms.goal import Goals
+from safety_gymnasium.tasks.language.assets.geoms.goal import Goal
 from safety_gymnasium.tasks.language.bases.base_task import BaseTask
 import numpy as np
+import random
 
 # 定义词汇表和单词到索引的映射
-vocab = ['The', 'the', 'goal', 'color', 'is', 'green', 'red', 'I', 'reached', '.']
+vocab = ['The', 'the', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
 word_to_index = {word: index for index, word in enumerate(vocab)}
 vocab_size = len(vocab)
 
@@ -41,58 +42,83 @@ class LanguageGoalLevel0(BaseTask):
         super().__init__(config=config, agent_num=agent_num)
 
         self.placements_conf.extents = [-1.5, -1.5, 1.5, 1.5]
-        self.goal_num = 2
+        self.goal_num = 1
         self.agent_num = agent_num
         self._add_geoms(
-            Goals(size=0.2, name='green_goals', color=np.array([0, 1, 0, 1]), keepout=0.18, num=self.goal_num),
+            Goal(size=0.2, name='green_goal', color=np.array([0, 1, 0, 1]), keepout=0.18),
         )
         self._add_geoms(
-            Goals(size=0.2,name='red_goals', color=np.array([1, 0, 0, 1]), keepout=0.18, num=self.goal_num),
+            Goal(size=0.2,name='red_goal', color=np.array([1, 0, 0, 1]), keepout=0.18),
         )
-        self.goal_achieved_index = np.zeros(self.goal_num, dtype=bool)
-        self.falsegoal_achieved_index = np.zeros(self.goal_num, dtype=bool)
+        self._add_geoms(
+            Goal(size=0.2,name='yellow_goal', color=np.array([1, 1, 0, 1]), keepout=0.18),
+        )
+        self._add_geoms(
+            Goal(size=0.2,name='purple_goal', color=np.array([0.5, 0, 1, 1]), keepout=0.18),
+        )
 
-        self.achieved_goal_name = ""
         self.current_goal_color = "red"
 
         self.language_deque = deque()
+        self.goal_color_list = ['yellow', 'green', 'purple', 'red']
+        self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
+        self.last_cost = False
+        self.vocab_size = vocab_size + 1
+    # def dist_index_green_goals(self, index) -> float:
+    #     """Return the distance from the agent to the goal XY position."""
+    #     assert hasattr(self, 'green_goals'), 'Please make sure you have added goal into env.'
+    #     return [self.agents.dist_xy(pos, index) for pos in self.green_goals.pos]
 
-    def dist_index_green_goals(self, index) -> float:
-        """Return the distance from the agent to the goal XY position."""
-        assert hasattr(self, 'green_goals'), 'Please make sure you have added goal into env.'
-        return [self.agents.dist_xy(pos, index) for pos in self.green_goals.pos]
+    # def dist_index_red_goals(self, index) -> float:
+    #     """Return the distance from the agent to the goal XY position."""
+    #     assert hasattr(self, 'red_goals'), 'Please make sure you have added goal into env.'
+    #     return [self.agents.dist_xy(pos, index) for pos in self.red_goals.pos]
 
-    def dist_index_red_goals(self, index) -> float:
-        """Return the distance from the agent to the goal XY position."""
-        assert hasattr(self, 'red_goals'), 'Please make sure you have added goal into env.'
-        return [self.agents.dist_xy(pos, index) for pos in self.red_goals.pos]
+    def dist_color_goal(self, color) -> float:
+        positions = getattr(self, f"{color}_goal").pos
+        return self.agents.dist_xy(positions, 0)
 
     def calculate_reward(self):
         """Determine reward depending on the agent and tasks."""
         # pylint: disable=no-member
         reward = {f'agent_{i}': 0.0 for i in range(self.agent_num)}
 
-        if self.goal_achieved_index.any():
-            for index in range(self.agent_num):
-                reward[f'agent_{index}'] += self.green_goals.reward_goal
+        for index in range(self.agent_num):
+
+            dist_goal = self.dist_color_goal(self.current_goal_color)
+            reward[f'agent_{index}'] += (
+                self.last_dist_goal - dist_goal
+            ) * getattr(self, f"{self.current_goal_color}_goal").reward_distance
+            self.last_dist_goal_red = dist_goal
+
+            if dist_goal <= getattr(self, f"{self.current_goal_color}_goal").size:
+                reward[f'agent_{index}'] += getattr(self, f"{self.current_goal_color}_goal").reward_goal
 
         return reward
 
     def calculate_cost(self):
         cost = super().calculate_cost()
+
         self.falsegoal_achieved_index = np.zeros(self.goal_num, dtype=bool)
 
-        for index in range(self.goal_num):
-            if self.current_goal_color == "green":
-                dist_falsegoal = np.array(self.dist_index_red_goals(index=0))
-            elif self.current_goal_color == "red":
-                dist_falsegoal = np.array(self.dist_index_green_goals(index=0))
-            local_achieved = dist_falsegoal <= self.green_goals.size
-            self.falsegoal_achieved_index |= local_achieved
+        cost_false_goal = 0
+        for false_color in self.false_goals:
+            dist_falsegoal = self.dist_color_goal(false_color)
+            local_achieved = dist_falsegoal <= getattr(self, f"{false_color}_goal").size
+            if local_achieved:
+                cost_false_goal += 1
 
-        falsegoal_achieved_array_index = (np.where(self.falsegoal_achieved_index)[0])
-        if len(falsegoal_achieved_array_index)!=0:
-            cost['agent_0']['cost_sum'] += 1.0
+                if not self.last_cost:
+                    language = "I hit the " + false_color + " obstacle ."
+                    # get the len of language
+                    token = language.split(' ')
+                    len_language = len(token)
+                    for i in range(len_language):
+                        self.language_deque.append(token[i])
+                    self.last_cost = True
+        if cost_false_goal == 0:
+            self.last_cost = False
+        cost['agent_0']['cost_sum'] += cost_false_goal
 
         # if cost['agent_0']['cost_sum'] >= 1.0:
         #     print("I get hurt!")
@@ -107,6 +133,7 @@ class LanguageGoalLevel0(BaseTask):
         if len_deque != 0:
             language = self.language_deque.popleft()
             query_word = language
+            print(language)
             obs['language'] = one_hot(query_word, word_to_index, vocab_size) # np.array([int(position)])
         else:
             obs['language'] = one_hot('no_word', word_to_index, vocab_size)
@@ -120,7 +147,11 @@ class LanguageGoalLevel0(BaseTask):
         self.achieved_goal_name = ""
         self.language_deque = deque()
 
-        self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
+        self.current_goal_color = random.choice(self.goal_color_list)
+        self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
+        self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
+        self.last_cost = False
+
         language = "The goal color is " + self.current_goal_color + " ."
         # get the len of language
         token = language.split(' ')
@@ -131,7 +162,10 @@ class LanguageGoalLevel0(BaseTask):
     def specific_step(self):
         # execute the code 5% probablity
         if np.random.rand() < 0.002:
-            self.current_goal_color = np.random.choice(["green", "red"], 1, p=[0.5, 0.5])[0]
+            self.current_goal_color = random.choice(self.goal_color_list)
+            self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
+            self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
+
             self.language_deque = deque()
             language = "The goal color is " + self.current_goal_color + " ."
             # get the len of language
@@ -149,38 +183,24 @@ class LanguageGoalLevel0(BaseTask):
                 self.language_deque.append(token[i])
 
     def update_world(self):
-        self.build_goals_position(self.achieved_goal_name)
-
+        self.build_goals_position(self.current_goal_color)
 
     @property
     def goal_achieved(self):
         """Whether the goal of task is achieved."""
         # pylint: disable=no-member
 
-        self.goal_achieved_index = np.zeros(self.goal_num, dtype=bool)
 
-        for index in range(self.goal_num):
-            if self.current_goal_color == "green":
-                dist_goal = np.array(self.dist_index_green_goals(index=0))
-            elif self.current_goal_color == "red":
-                dist_goal = np.array(self.dist_index_red_goals(index=0))
-            local_achieved = dist_goal <= self.green_goals.size
-            self.goal_achieved_index |= local_achieved
+        dist_goal = self.dist_color_goal(self.current_goal_color)
+        goal_achieved = dist_goal <= getattr(self, f"{self.current_goal_color}_goal").size
 
-        goal_achieved_array_index = (np.where(self.goal_achieved_index)[0])
-        if len(goal_achieved_array_index)!=0:
-            goal_achieved_array_index = goal_achieved_array_index[0]
-            if self.current_goal_color == "green":
-                self.achieved_goal_name = "green_goal" + str(goal_achieved_array_index)
-                language = "I reached the green goal ."
-
-            elif self.current_goal_color == "red":
-                self.achieved_goal_name = "red_goal" + str(goal_achieved_array_index)
-                language = "I reached the red goal ."
+        if goal_achieved:
+            language = "I reached the "+ self.current_goal_color +" goal ."
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
             for i in range(len_language):
                 self.language_deque.append(token[i])
-        return self.goal_achieved_index.any()
+
+        return goal_achieved
 
