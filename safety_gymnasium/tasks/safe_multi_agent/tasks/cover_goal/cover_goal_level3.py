@@ -21,13 +21,13 @@ from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level1 
 
 
 class CoverGoalLevel3(CoverGoalLevel1):
-    """Support 4 agents."""
+    """Support 4 agents. 8 hazards will bug"""
     def __init__(self, config, agent_num) -> None:
         super().__init__(config=config, agent_num=agent_num)
         # pylint: disable=no-member
 
         self.placements_conf.extents = [-2.0, -2.0, 2.0, 2.0]
 
-        self._add_geoms(Hazards(num=8, keepout=0.18))
+        self._add_geoms(Hazards(num=6, keepout=0.18))
         self.contact_other_cost = 1.0
 
