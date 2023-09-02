@@ -21,7 +21,7 @@ import numpy as np
 import random
 
 # 定义词汇表和单词到索引的映射
-vocab = ['The', 'the', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
+vocab = ['New', 'The', 'the', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
 word_to_index = {word: index for index, word in enumerate(vocab)}
 vocab_size = len(vocab)
 
@@ -64,6 +64,7 @@ class LanguageGoalLevel0(BaseTask):
         self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
         self.last_cost = False
         self.vocab_size = vocab_size + 1
+        self.timestep = 0
     # def dist_index_green_goals(self, index) -> float:
     #     """Return the distance from the agent to the goal XY position."""
     #     assert hasattr(self, 'green_goals'), 'Please make sure you have added goal into env.'
@@ -109,6 +110,7 @@ class LanguageGoalLevel0(BaseTask):
                 cost_false_goal += 1
 
                 if not self.last_cost:
+                    self.language_deque = deque()
                     language = "I hit the " + false_color + " obstacle ."
                     # get the len of language
                     token = language.split(' ')
@@ -150,6 +152,7 @@ class LanguageGoalLevel0(BaseTask):
         self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
         self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
         self.last_cost = False
+        self.timestep = 0
 
         language = "The goal color is " + self.current_goal_color + " ."
         # get the len of language
@@ -160,20 +163,22 @@ class LanguageGoalLevel0(BaseTask):
 
     def specific_step(self):
         # execute the code 5% probablity
+        self.timestep += 1
+
         if np.random.rand() < 0.002:
             self.current_goal_color = random.choice(self.goal_color_list)
             self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
             self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
 
             self.language_deque = deque()
-            language = "The goal color is " + self.current_goal_color + " ."
+            language = "New goal color is " + self.current_goal_color + " ."
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
             for i in range(len_language):
                 self.language_deque.append(token[i])
 
-        if np.random.rand() < 0.008:
+        if self.timestep % 10 == 0:
             language = "The goal color is " + self.current_goal_color + " ."
             # get the len of language
             token = language.split(' ')
@@ -194,6 +199,7 @@ class LanguageGoalLevel0(BaseTask):
         goal_achieved = dist_goal <= getattr(self, f"{self.current_goal_color}_goal").size
 
         if goal_achieved:
+            self.language_deque = deque()
             language = "I reached the "+ self.current_goal_color +" goal ."
             # get the len of language
             token = language.split(' ')
