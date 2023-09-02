@@ -89,11 +89,11 @@ class LanguageGoalLevel0(BaseTask):
             reward[f'agent_{index}'] += (
                 self.last_dist_goal - dist_goal
             ) * getattr(self, f"{self.current_goal_color}_goal").reward_distance
-            self.last_dist_goal_red = dist_goal
+
+            self.last_dist_goal = dist_goal
 
             if dist_goal <= getattr(self, f"{self.current_goal_color}_goal").size:
                 reward[f'agent_{index}'] += getattr(self, f"{self.current_goal_color}_goal").reward_goal
-
         return reward
 
     def calculate_cost(self):
@@ -133,7 +133,6 @@ class LanguageGoalLevel0(BaseTask):
         if len_deque != 0:
             language = self.language_deque.popleft()
             query_word = language
-            print(language)
             obs['language'] = one_hot(query_word, word_to_index, vocab_size) # np.array([int(position)])
         else:
             obs['language'] = one_hot('no_word', word_to_index, vocab_size)
