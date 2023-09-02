@@ -38,6 +38,12 @@ from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level1 
 from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level2 import (
     CoverGoalLevel2,
 )
+from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level3 import (
+    CoverGoalLevel3,
+)
+from safety_gymnasium.tasks.safe_multi_agent.tasks.cover_goal.cover_goal_level4 import (
+    CoverGoalLevel4,
+)
 from safety_gymnasium.tasks.language.tasks.language_goal.language_goal_level0 import (
     LanguageGoalLevel0,
 )

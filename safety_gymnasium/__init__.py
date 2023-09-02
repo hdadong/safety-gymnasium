@@ -350,7 +350,7 @@ __combine_multi(multi_goal_tasks, robots, max_episode_steps=1000)
 
 # Cover Goal Environments
 # ----------------------------------------
-cover_goal_tasks = {'CoverGoal0': {}, 'CoverGoal1': {}, 'CoverGoal2': {}}
+cover_goal_tasks = {'CoverGoal0': {}, 'CoverGoal1': {}, 'CoverGoal2': {}, 'CoverGoal3': {}, 'CoverGoal4': {}}
 __combine_multi(cover_goal_tasks, robots, max_episode_steps=1000)
 
 
