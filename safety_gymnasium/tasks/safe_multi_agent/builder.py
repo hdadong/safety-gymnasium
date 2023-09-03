@@ -218,7 +218,6 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
                     raise ValueError('Action dimension mismatch')
                 indexes = self.task.agents.actuator_index + self.task.agents.delta * index
                 global_action[indexes] = action[agent]
-
         exception = self.task.simulation_forward(global_action)
         if exception:
             self.truncated = True
