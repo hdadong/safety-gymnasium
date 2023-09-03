@@ -29,6 +29,7 @@ class CoverGoalLevel0(BaseTask):
             Goals(keepout=0.305, num=self.agents.num),
         )
         self.goal_achieved_index = np.zeros(self.agents.num, dtype=bool)
+        self.mechanism_conf.continue_goal = False
 
     def dist_index_goals(self, index) -> float:
         """Return the distance from the agent to the goal XY position."""
@@ -48,8 +49,8 @@ class CoverGoalLevel0(BaseTask):
             else:
                 reward_all -= min(dists)
 
-        if achieved_num == self.agents.num:
-            reward_all += 3000
+        # if achieved_num == self.agents.num:
+        #     reward_all += 3000
 
         reward = {f'agent_{i}': reward_all for i in range(self.agents.num)}
         return reward
