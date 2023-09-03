@@ -45,16 +45,16 @@ class LanguageGoalLevel0(BaseTask):
         self.goal_num = 1
         self.agent_num = agent_num
         self._add_geoms(
-            Goal(size=0.2, name='green_goal', color=np.array([0, 1, 0, 1]), keepout=0.18),
+            Goal(size=0.2, name='green_goal', color=np.array([0, 1, 0, 1]), keepout=0.18, alpha=1.0),
         )
         self._add_geoms(
-            Goal(size=0.2,name='red_goal', color=np.array([1, 0, 0, 1]), keepout=0.18),
+            Goal(size=0.2,name='red_goal', color=np.array([1, 0, 0, 1]), keepout=0.18, alpha=1.0),
         )
         self._add_geoms(
-            Goal(size=0.2,name='yellow_goal', color=np.array([1, 1, 0, 1]), keepout=0.18),
+            Goal(size=0.2,name='yellow_goal', color=np.array([1, 1, 0, 1]), keepout=0.18, alpha=1.0),
         )
         self._add_geoms(
-            Goal(size=0.2,name='purple_goal', color=np.array([0.5, 0, 1, 1]), keepout=0.18),
+            Goal(size=0.2,name='purple_goal', color=np.array([0.5, 0, 1, 1]), keepout=0.18 , alpha=1.0),
         )
 
         self.current_goal_color = "red"
