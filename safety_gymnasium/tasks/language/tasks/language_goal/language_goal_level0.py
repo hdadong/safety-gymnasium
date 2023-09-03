@@ -21,7 +21,7 @@ import numpy as np
 import random
 
 # 定义词汇表和单词到索引的映射
-vocab = ['New', 'The', 'the', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
+vocab = ['New', 'The', 'the', 'Goal', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
 word_to_index = {word: index for index, word in enumerate(vocab)}
 vocab_size = len(vocab)
 
@@ -111,7 +111,7 @@ class LanguageGoalLevel0(BaseTask):
 
                 if not self.last_cost:
                     self.language_deque = deque()
-                    language = "I hit the " + false_color + " obstacle ."
+                    language = "I hit the " + false_color + " obstacle"
                     # get the len of language
                     token = language.split(' ')
                     len_language = len(token)
@@ -154,7 +154,7 @@ class LanguageGoalLevel0(BaseTask):
         self.last_cost = False
         self.timestep = 0
 
-        language = "The goal color is " + self.current_goal_color + " ."
+        language = "Goal is " + self.current_goal_color
         # get the len of language
         token = language.split(' ')
         len_language = len(token)
@@ -165,21 +165,21 @@ class LanguageGoalLevel0(BaseTask):
         # execute the code 5% probablity
         self.timestep += 1
 
-        if np.random.rand() < 0.002:
-            self.current_goal_color = random.choice(self.goal_color_list)
-            self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
-            self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
+        # if np.random.rand() < 0.002:
+        #     self.current_goal_color = random.choice(self.goal_color_list)
+        #     self.false_goals =  [color for color in self.goal_color_list if color != self.current_goal_color]
+        #     self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
 
-            self.language_deque = deque()
-            language = "New goal color is " + self.current_goal_color + " ."
-            # get the len of language
-            token = language.split(' ')
-            len_language = len(token)
-            for i in range(len_language):
-                self.language_deque.append(token[i])
+        #     self.language_deque = deque()
+        #     language = "New goal color is " + self.current_goal_color + " ."
+        #     # get the len of language
+        #     token = language.split(' ')
+        #     len_language = len(token)
+        #     for i in range(len_language):
+        #         self.language_deque.append(token[i])
 
         if self.timestep % 10 == 0:
-            language = "The goal color is " + self.current_goal_color + " ."
+            language = "Goal is " + self.current_goal_color
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
@@ -200,7 +200,7 @@ class LanguageGoalLevel0(BaseTask):
 
         if goal_achieved:
             self.language_deque = deque()
-            language = "I reached the "+ self.current_goal_color +" goal ."
+            language = "I reached the "+ self.current_goal_color +" goal"
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
