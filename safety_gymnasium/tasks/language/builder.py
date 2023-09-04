@@ -205,20 +205,22 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         return (observations['agent_0'], infos['agent_0'])
 
     # pylint: disable=too-many-branches
-    def step(self, action: np.ndarray) -> tuple[np.ndarray, float, float, bool, bool, dict]:
+    def step(self, action: int) -> tuple[np.ndarray, float, float, bool, bool, dict]:
         """Take a step and return observation, reward, cost, terminated, truncated, info."""
         assert not self.done, 'Environment must be reset before stepping.'
 
         info = {}
+        global_action = np.zeros(2,)
+        # TODO 
+        if action == 0:
+            global_action[0] += 1
+        elif action == 1:
+            global_action[0] -= 1
+        elif action == 2:
+            global_action[1] += 1
+        elif action == 3:
+            global_action[1] -= 1
 
-        global_action = np.zeros(
-            # pylint: disable-next=consider-using-generator
-            (sum([self.action_space.shape[0] for agent in self.possible_agents]),),
-        )
-        if self.task.agents.num == 1:
-            global_action = np.array(action, copy=False)
-        else:
-            raise NotImplementedError
         exception = self.task.simulation_forward(global_action)
         if exception:
             self.truncated = True
@@ -345,15 +347,15 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
           Each frame is a numpy.ndarray with shape (x, y), as with `depth_array`.
         """
         assert self.render_parameters.mode, 'Please specify the render mode when you make env.'
-        assert (
-            not self.task.observe_vision
-        ), 'When you use vision envs, you should not call this function explicitly.'
+        # assert (
+        #     not self.task.observe_vision
+        # ), 'When you use vision envs, you should not call this function explicitly.'
         return self.task.render(cost=self.cost, **asdict(self.render_parameters))
 
     @property
     def action_space(self) -> gymnasium.spaces.Box:
         """Helper to get action space."""
-        return self.task.action_space['agent_0']
+        return gymnasium.spaces.Discrete(4)
 
     @property
     def state(self):
