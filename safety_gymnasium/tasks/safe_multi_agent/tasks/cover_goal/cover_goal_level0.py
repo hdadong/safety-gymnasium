@@ -26,7 +26,7 @@ class CoverGoalLevel0(BaseTask):
         self.placements_conf.extents = [-1, -1, 1, 1]
 
         self._add_geoms(
-            Goals(keepout=0.305, num=self.agents.num, alpha=1.0),
+            Goals(keepout=0.305, num=self.agents.num),
         )
         self.goal_achieved_index = np.zeros(self.agents.num, dtype=bool)
         self.mechanism_conf.continue_goal = False
