@@ -222,6 +222,10 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             global_action[1] -= 1
 
         exception = self.task.simulation_forward(global_action)
+        exception = self.task.simulation_forward(global_action)
+        exception = self.task.simulation_forward(global_action)
+        exception = self.task.simulation_forward(global_action)
+
         if exception:
             self.truncated = True
 
