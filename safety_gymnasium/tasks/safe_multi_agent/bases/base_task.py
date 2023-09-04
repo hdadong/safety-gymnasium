@@ -463,7 +463,6 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
 
             if self.observe_vision:
                 obs[f'vision__{index}'] = self._obs_vision(camera_name=f'vision__{index}')
-
         assert self.obs_info.obs_space_dict.contains(
             obs,
         ), f'Bad obs {obs} {self.obs_info.obs_space_dict}'
@@ -597,6 +596,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
             URL: `issue <https://github.com/PKU-Alignment/safety-gymnasium/issues/27>`_
         """
         rows, cols = self.vision_env_conf.vision_size
+        #rows, cols = self.vision_env_conf
         width, height = cols, rows
         return self.render(
             width,

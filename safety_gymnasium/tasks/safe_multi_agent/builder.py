@@ -98,6 +98,8 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         render_mode: str | None = None,
         width: int = 256,
         height: int = 256,
+        obs_width: int = 64,
+        obs_height: int = 64,
         camera_id: int | None = None,
         camera_name: str | None = None,
     ) -> None:
@@ -127,6 +129,9 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         self.task_id: str = task_id
         self.config: dict = config
+        self.config['obs_width'] = obs_width
+        self.config['obs_height'] = obs_height
+
         self.agent_num: int = agent_num
         self._seed: int = None
         self._setup_simulation()

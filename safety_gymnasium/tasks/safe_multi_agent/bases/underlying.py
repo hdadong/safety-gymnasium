@@ -199,6 +199,8 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self.placements_conf = PlacementsConf()
         self.render_conf = RenderConf()
         self.vision_env_conf = VisionEnvConf()
+        self.obs_height = 64
+        self.obs_width = 64
         self.floor_conf = FloorConf()
 
         self.random_generator = RandomGenerator()
@@ -244,6 +246,7 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
             else:
                 assert hasattr(self, key), f'Bad key {key}'
                 setattr(self, key, value)
+        self.vision_env_conf.vision_size = (self.obs_height, self.obs_width)
 
     def _build_agent(self, agent_name: str) -> None:
         """Build the agent in the world."""
