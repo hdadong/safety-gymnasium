@@ -281,8 +281,8 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         #     terminateds[agents] = self.terminated
         #     truncateds[agents] = self.truncated
         #     infos[agents] = info
-
-        return state, rewards['agent_0'], costs['agent_0'], self.terminated, self.truncated, info
+        total_cost = sum(costs.values())
+        return state, rewards['agent_0'], total_cost, self.terminated, self.truncated, info
 
     def _reward(self) -> float:
         """Calculate the current rewards.
