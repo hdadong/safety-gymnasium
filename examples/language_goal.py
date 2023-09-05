@@ -17,28 +17,37 @@
 import argparse
 
 import safety_gymnasium
+#from gymnasium.utils.save_video import save_video
 
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name, render_mode='human', agent_num=1,camera_name='vision', width=1024, height=1024)
+    env = safety_gymnasium.make(env_name, render_mode='human', agent_num=1,camera_name='human', width=1024, height=1024)
     obs, _ = env.reset()
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
     print(env.action_space, env.observation_space)
     terminated, truncated = False, False
     ep_ret, ep_cost = 0, 0
+    step=0
+    #video_list_pred = []
     while True:
         if (terminated) or (truncated):
-            print(f'Episode Return: {ep_ret} \t Episode Cost: {ep_cost}')
+            print(f'Episode Return: {ep_ret} \t Episode Cost: {ep_cost}  \t step: {step}')
             ep_ret, ep_cost = 0, 0
             obs, _ = env.reset()
-
+            # save_video(
+            #     frames=video_list_pred,
+            #     video_folder='./',
+            #     name_prefix='video_list_pred2_' + str(step.value),
+            #     fps=20,
+            # )
+            # video_list_pred = []
         for agent in env.agents:
             act = env.action_space.sample()
-
         obs, reward, cost, terminated, truncated, _ = env.step(act)
-        #print(obs)
+        step += 1
+        #video_list_pred.append(env.task.render(width=64, height=64, mode='rgb_array', camera_name='vision', cost={'agent_0': {'cost_sum': 0}}))
         for agent in env.agents:
             ep_ret += reward
             ep_cost += cost

@@ -21,7 +21,9 @@ import safety_gymnasium
 
 def run_random(env_name):
     """Random run."""
-    env = safety_gymnasium.make(env_name, width=64, height=64, render_mode='rgb_array', agent_num=4)
+    env = safety_gymnasium.make(env_name, width=64, height=64, obs_width=64, obs_height=64, render_mode='rgb_array', agent_num=8)
+    #env.task.vision_env_conf = (1024, 1024)
+
     obs, _ = env.reset()
     # Use below to specify seed.
     # obs, _ = env.reset(seed=0)
@@ -41,13 +43,13 @@ def run_random(env_name):
             #assert env.observation_space(agent).contains(obs[agent])
             act[agent] = env.action_space[agent].sample()
             #assert env.action_space(agent).contains(act[agent])
-        obs, reward, cost, terminated, truncated, _ = env.step(act)
+        obs, reward, cost, terminated, truncated, info = env.step(act)
         ep_ret += reward
         ep_cost += cost
         t+=1
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', default='SafetyPointMultiGoal3-v0')
+    parser.add_argument('--env', default='SafetyPointMultiGoal4-v0')
     args = parser.parse_args()
     run_random(args.env)
