@@ -188,6 +188,7 @@ class LanguageGoalLevel0(BaseTask):
 
     def update_world(self):
         self.build_goals_position(self.current_goal_color)
+        self.last_dist_goal = self.dist_color_goal(self.current_goal_color)
 
     @property
     def goal_achieved(self):
