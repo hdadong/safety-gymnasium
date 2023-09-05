@@ -283,6 +283,10 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             terminateds[agents] = self.terminated
             truncateds[agents] = self.truncated
             infos[agents] = info
+        
+        #assert dict observation is not np.nan
+        for key in observations['agent_0'].keys():
+            assert not np.any(np.isnan(observations['agent_0'][key]))
 
         return observations['agent_0'], rewards['agent_0'], costs['agent_0'], terminateds['agent_0'], truncateds['agent_0'], infos['agent_0']
 
