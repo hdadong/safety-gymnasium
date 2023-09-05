@@ -17,6 +17,7 @@
 from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level1 import (
     MultiGoalLevel1,
 )
+from safety_gymnasium.tasks.safe_multi_agent.assets.geoms.goal import Goals
 
 
 class MultiGoalLevel4(MultiGoalLevel1):
@@ -25,10 +26,12 @@ class MultiGoalLevel4(MultiGoalLevel1):
     def __init__(self, config, agent_num) -> None:
         super().__init__(config=config, agent_num=agent_num)
         # pylint: disable=no-member
-
-        self.placements_conf.extents = [-4.5, -4.5, 4.5, 4.5]
-        self.floor_conf.size = [5, 5, 0.1]
-        self.hazards.num = 25
-        self.vases.num = 25
+        self._add_geoms(
+            Goals(keepout=0.205, size=0.15, num=self.agents.num,color=([0, 1, 1, 1])),
+        )
+        self.placements_conf.extents = [-2.5, -2.5, 2.5, 2.5]
+        #self.floor_conf.size = [5, 5, 0.1]
+        self.hazards.num = 1
+        #self.vases.num = 3
         self.vases.is_constrained = True
         self.contact_other_cost = 1.0
