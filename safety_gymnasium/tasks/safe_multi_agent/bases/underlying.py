@@ -565,7 +565,7 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         safety_gymnasium.utils.keyboard_viewer.KeyboardViewer
         | gymnasium.envs.mujoco.mujoco_rendering.RenderContextOffscreen
     ):
-        self.viewer = None
+        self.viewer = self._viewers.get(mode)
         if self.viewer is None:
             if mode == 'human':
                 self.viewer = KeyboardViewer(
