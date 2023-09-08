@@ -21,7 +21,8 @@ import numpy as np
 import random
 
 # 定义词汇表和单词到索引的映射
-vocab = ['New', 'The', 'the', 'Goal', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
+#vocab = ['New', 'The', 'the', 'Goal', 'goal', 'color', 'is', 'yellow', 'green', 'purple', 'red', 'I', 'reached', 'hit', 'obstacle', '.']
+vocab = ['Hit', 'obstacle', 'Goal', 'is', 'Reached', 'goal','yellow', 'green', 'purple', 'red']
 word_to_index = {word: index for index, word in enumerate(vocab)}
 vocab_size = len(vocab)
 
@@ -41,7 +42,7 @@ class LanguageGoalLevel0(BaseTask):
     def __init__(self, config, agent_num) -> None:
         super().__init__(config=config, agent_num=agent_num)
 
-        self.placements_conf.extents = [-1.5, -1.5, 1.5, 1.5]
+        self.placements_conf.extents = [-1.0, -1.0, 1.0, 1.0]
         self.goal_num = 1
         self.agent_num = agent_num
         self._add_geoms(
@@ -111,7 +112,7 @@ class LanguageGoalLevel0(BaseTask):
 
                 if not self.last_cost:
                     self.language_deque = deque()
-                    language = "I hit the " + false_color + " obstacle"
+                    language = "Hit " + false_color + " obstacle"
                     # get the len of language
                     token = language.split(' ')
                     len_language = len(token)
@@ -178,7 +179,7 @@ class LanguageGoalLevel0(BaseTask):
         #     for i in range(len_language):
         #         self.language_deque.append(token[i])
 
-        if self.timestep % 10 == 0:
+        if self.timestep % 3 == 0:
             language = "Goal is " + self.current_goal_color
             # get the len of language
             token = language.split(' ')
@@ -201,7 +202,7 @@ class LanguageGoalLevel0(BaseTask):
 
         if goal_achieved:
             self.language_deque = deque()
-            language = "I reached the "+ self.current_goal_color +" goal"
+            language = "Reached "+ self.current_goal_color +" goal"
             # get the len of language
             token = language.split(' ')
             len_language = len(token)
