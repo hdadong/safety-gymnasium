@@ -26,8 +26,8 @@ class CoverGoalLevel1(CoverGoalLevel0):
     def __init__(self, config, agent_num) -> None:
         super().__init__(config=config, agent_num=agent_num)
 
-        self.placements_conf.extents = [-1.5, -1.5, 1.5, 1.5]
+        self.placements_conf.extents = [-1.55, -1.55, 1.55, 1.55]
 
         self._add_geoms(Hazards(num=8, keepout=0.18))
-        self._add_free_geoms(Vases(num=1, is_constrained=False))
+        #self._add_free_geoms(Vases(num=1, is_constrained=False))
         self.contact_other_cost = 1.0
