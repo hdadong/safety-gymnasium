@@ -39,7 +39,7 @@ class Car(BaseAgent):
         rot: Optional[float] = None,
         num: int = 2,
     ) -> None:
-        self.actuator_index = np.array([i for i in range(2)])
+        self.actuator_index = np.array([0, 1])
         self.delta = 2
         super().__init__(
             self.__class__.__name__,
