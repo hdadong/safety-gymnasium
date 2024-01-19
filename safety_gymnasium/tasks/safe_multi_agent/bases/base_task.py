@@ -189,7 +189,7 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         self.action_space = self.agents.action_space
         self.observation_space = None
         self.obs_info = ObservationInfo()
-
+        self.agent_num = agent_num
         self._is_load_static_geoms = False  # Whether to load static geoms in current task.
         self.static_geoms_names: dict
         self.static_geoms_contact_cost: float = None
@@ -466,10 +466,31 @@ class BaseTask(Underlying):  # pylint: disable=too-many-instance-attributes,too-
         assert self.obs_info.obs_space_dict.contains(
             obs,
         ), f'Bad obs {obs} {self.obs_info.obs_space_dict}'
+        all_obs_dict = {}
+        for i in range(self.agent_num):
+            obs_dict = {}
+            obs_dict['accelerometer__' + str(i)] = obs['accelerometer__' + str(i)]
+            obs_dict['velocimeter__' + str(i)] = obs['velocimeter__' + str(i)]
+            obs_dict['gyro__' + str(i)] = obs['gyro__' + str(i)]
+            obs_dict['magnetometer__' + str(i)] = obs['magnetometer__' + str(i)]
+            obs_dict['goals_lidar__' + str(i)] = obs['goals_lidar__' + str(i)]
+            obs_dict['hazards_lidar__' + str(i)] = obs['hazards_lidar__' + str(i)]
+            #obs_dict['vases_lidar__' + str(i)] = obs['vases_lidar__' + str(i)]
 
-        if self.observation_flatten:
-            obs = gymnasium.spaces.utils.flatten(self.obs_info.obs_space_dict, obs)
-        return obs
+            obs_space_dict =  OrderedDict()
+            obs_space_dict['accelerometer__' + str(i)] = self.obs_info.obs_space_dict['accelerometer__' + str(i)]
+            obs_space_dict['velocimeter__' + str(i)] = self.obs_info.obs_space_dict['velocimeter__' + str(i)]
+            obs_space_dict['gyro__' + str(i)] = self.obs_info.obs_space_dict['gyro__' + str(i)]
+            obs_space_dict['magnetometer__' + str(i)] = self.obs_info.obs_space_dict['magnetometer__' + str(i)]
+            obs_space_dict['goals_lidar__' + str(i)] = self.obs_info.obs_space_dict['goals_lidar__' + str(i)]
+            obs_space_dict['hazards_lidar__' + str(i)] = self.obs_info.obs_space_dict['hazards_lidar__' + str(i)]
+            #obs_space_dict['vases_lidar__' + str(i)] = self.obs_info.obs_space_dict['vases_lidar__' + str(i)]
+            obs_space_dict = gymnasium.spaces.Dict(obs_space_dict)
+            all_obs_dict['agent_'+str(i)] = gymnasium.spaces.utils.flatten(obs_space_dict, obs_dict)
+
+        # if self.observation_flatten:
+        #     obs = gymnasium.spaces.utils.flatten(self.obs_info.obs_space_dict, obs_dict)
+        return all_obs_dict
 
     def _obs_lidar(self, positions: np.ndarray | list, group: int, index: int) -> np.ndarray:
         """Calculate and return a lidar observation.

@@ -196,12 +196,12 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         state = self.task.obs()
         observations, infos = {}, {}
-        # for agents in self.possible_agents:
-        #     observations[agents] = state
-        #     infos[agents] = info
+        for agents in self.possible_agents:
+            observations[agents] = state
+            infos[agents] = info
 
         # Return an observation
-        return (state, info)
+        return (observations, infos)
 
     # pylint: disable=too-many-branches
     def step(self, action: dict) -> tuple[np.ndarray, float, float, bool, bool, dict]:
@@ -275,14 +275,15 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             self.render()
 
         state = self.task.obs()
-        # observations, terminateds, truncateds, infos = {}, {}, {}, {}
-        # for agents in self.possible_agents:
-        #     observations[agents] = state
-        #     terminateds[agents] = self.terminated
-        #     truncateds[agents] = self.truncated
-        #     infos[agents] = info
-        total_cost = sum(costs.values())
-        return state, rewards['agent_0'], total_cost, self.terminated, self.truncated, info
+        observations, terminateds, truncateds, infos = {}, {}, {}, {}
+        for agents in self.possible_agents:
+            observations[agents] = state[agents]
+            terminateds[agents] = self.terminated
+            truncateds[agents] = self.truncated
+            infos[agents] = info
+        #total_cost = sum(costs.values())
+        #return state, rewards['agent_0], total_cost, self.terminated, self.truncated, info
+        return observations, rewards, costs, terminateds, truncateds, infos
 
     def _reward(self) -> float:
         """Calculate the current rewards.
