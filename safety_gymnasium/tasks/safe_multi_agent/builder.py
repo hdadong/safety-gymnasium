@@ -94,9 +94,12 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         self,
         task_id: str,
         config: dict | None = None,
+        agent_num: int = 2,
         render_mode: str | None = None,
         width: int = 256,
         height: int = 256,
+        obs_width: int = 64,
+        obs_height: int = 64,
         camera_id: int | None = None,
         camera_name: str | None = None,
     ) -> None:
@@ -126,6 +129,10 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         self.task_id: str = task_id
         self.config: dict = config
+        self.config['obs_width'] = obs_width
+        self.config['obs_height'] = obs_height
+
+        self.agent_num: int = agent_num
         self._seed: int = None
         self._setup_simulation()
 
@@ -147,7 +154,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         class_name = get_task_class_name(self.task_id)
         assert hasattr(tasks, class_name), f'Task={class_name} not implemented.'
         task_class = getattr(tasks, class_name)
-        task = task_class(config=self.config)
+        task = task_class(config=self.config, agent_num=self.agent_num)
 
         task.build_observation_space()
         return task
@@ -179,22 +186,22 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         self.task.reset()
         self.task.update_world()  # refresh specific settings
         self.task.specific_reset()
-        self.task.agent.reset()
+        self.task.agents.reset()
 
         cost = self._cost()
-        assert cost['agent_0']['cost_sum'] == 0, f'World has starting cost! {cost}'
-        assert cost['agent_1']['cost_sum'] == 0, f'World has starting cost! {cost}'
+        for agent in self.possible_agents:
+            assert cost[agent]['cost_sum'] == 0, f'{agent} has starting cost! {cost}'
         # Reset stateful parts of the environment
         self.first_reset = False  # Built our first world successfully
 
         state = self.task.obs()
         observations, infos = {}, {}
-        for agents in self.possible_agents:
-            observations[agents] = state
-            infos[agents] = info
+        # for agents in self.possible_agents:
+        #     observations[agents] = state
+        #     infos[agents] = info
 
         # Return an observation
-        return (observations, infos)
+        return (state, info)
 
     # pylint: disable=too-many-branches
     def step(self, action: dict) -> tuple[np.ndarray, float, float, bool, bool, dict]:
@@ -205,18 +212,17 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
         global_action = np.zeros(
             # pylint: disable-next=consider-using-generator
-            (sum([self.action_space(agent).shape[0] for agent in self.possible_agents]),),
+            (sum([self.action_space[agent].shape[0] for agent in self.possible_agents]),),
         )
-        for index, agent in enumerate(self.possible_agents):
-            action[agent] = np.array(action[agent], copy=False)  # cast to ndarray
-            if action[agent].shape != self.action_space(agent).shape:  # check action dimension
-                raise ValueError('Action dimension mismatch')
-            global_action[
-                index
-                * self.action_space(agent).shape[0] : (index + 1)
-                * self.action_space(agent).shape[0]
-            ] = action[agent]
-
+        if self.task.agents.num == 1:
+            global_action = np.array(action['agent_0'], copy=False)
+        else:
+            for index, agent in enumerate(self.possible_agents):
+                action[agent] = np.array(action[agent], copy=False)  # cast to ndarray
+                if action[agent].shape != self.action_space[agent].shape:  # check action dimension
+                    raise ValueError('Action dimension mismatch')
+                indexes = self.task.agents.actuator_index + self.task.agents.delta * index
+                global_action[indexes] = action[agent]
         exception = self.task.simulation_forward(global_action)
         if exception:
             self.truncated = True
@@ -232,12 +238,12 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
 
             info['reward_sum'] = sum(rewards.values())
 
-            costs = {'agent_0': info['agent_0']['cost_sum'], 'agent_1': info['agent_1']['cost_sum']}
+            costs = {f'agent_{index}': info[f'agent_{index}']['cost_sum'] for index in range(self.task.agents.num)}
 
             self.task.specific_step()
 
             # Goal processing
-            if self.task.goal_achieved[0] or self.task.goal_achieved[1]:
+            if self.task.goal_achieved:
                 info['goal_met'] = True
                 if self.task.mechanism_conf.continue_goal:
                     # Update the internal layout
@@ -257,7 +263,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
                     self.terminated = True
 
         # termination of death processing
-        if not self.task.agent.is_alive():
+        if not self.task.agents.is_alive():
             self.terminated = True
 
         # Timeout
@@ -269,14 +275,14 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             self.render()
 
         state = self.task.obs()
-        observations, terminateds, truncateds, infos = {}, {}, {}, {}
-        for agents in self.possible_agents:
-            observations[agents] = state
-            terminateds[agents] = self.terminated
-            truncateds[agents] = self.truncated
-            infos[agents] = info
-
-        return observations, rewards, costs, terminateds, truncateds, infos
+        # observations, terminateds, truncateds, infos = {}, {}, {}, {}
+        # for agents in self.possible_agents:
+        #     observations[agents] = state
+        #     terminateds[agents] = self.terminated
+        #     truncateds[agents] = self.truncated
+        #     infos[agents] = info
+        total_cost = sum(costs.values())
+        return state, rewards['agent_0'], total_cost, self.terminated, self.truncated, info
 
     def _reward(self) -> float:
         """Calculate the current rewards.
@@ -293,13 +299,13 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
             reward += self.task.reward_conf.reward_orientation_scale * zalign
 
         # Clip reward
-        reward_clip = self.task.reward_conf.reward_clip
-        if reward_clip:
-            for reward_i in reward.values():
-                in_range = -reward_clip < reward_i < reward_clip
-                if not in_range:
-                    reward_i = np.clip(reward_i, -reward_clip, reward_clip)
-                    print('Warning: reward was outside of range!')
+        # reward_clip = self.task.reward_conf.reward_clip
+        # if reward_clip:
+        #     for reward_i in reward.values():
+        #         in_range = -reward_clip < reward_i < reward_clip
+        #         if not in_range:
+        #             reward_i = np.clip(reward_i, -reward_clip, reward_clip)
+        #             print('Warning: reward was outside of range!')
 
         return reward
 
@@ -343,14 +349,15 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
           Each frame is a numpy.ndarray with shape (x, y), as with `depth_array`.
         """
         assert self.render_parameters.mode, 'Please specify the render mode when you make env.'
-        assert (
-            not self.task.observe_vision
-        ), 'When you use vision envs, you should not call this function explicitly.'
+        # assert (
+        #     not self.task.observe_vision
+        # ), 'When you use vision envs, you should not call this function explicitly.'
         return self.task.render(cost=self.cost, **asdict(self.render_parameters))
 
-    def action_space(self, agent: str) -> gymnasium.spaces.Box:
+    @property
+    def action_space(self)  -> gymnasium.spaces.Box | gymnasium.spaces.Dict:
         """Helper to get action space."""
-        return self.task.action_space[agent]
+        return self.task.action_space
 
     @property
     def state(self):
@@ -360,19 +367,20 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
     @property
     def num_agents(self) -> int:
         """Helper to get number of agents."""
-        return self.task.agent.nums
+        return self.task.agents.num
 
     @property
     def possible_agents(self) -> list[str]:
         """Helper to get possible agents."""
-        return self.task.agent.possible_agents
+        return self.task.agents.possible_agents
 
     @property
     def agents(self) -> list[str]:
         """Helper to get possible agents."""
-        return self.task.agent.possible_agents
+        return self.task.agents.possible_agents
 
-    def observation_space(self, _: str) -> gymnasium.spaces.Box | gymnasium.spaces.Dict:
+    @property
+    def observation_space(self) -> gymnasium.spaces.Box | gymnasium.spaces.Dict:
         """Helper to get observation space."""
         return self.task.observation_space
 

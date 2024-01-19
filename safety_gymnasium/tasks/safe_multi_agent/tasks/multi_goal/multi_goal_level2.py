@@ -22,8 +22,8 @@ from safety_gymnasium.tasks.safe_multi_agent.tasks.multi_goal.multi_goal_level1 
 class MultiGoalLevel2(MultiGoalLevel1):
     """An agent must navigate to a goal while avoiding more hazards and vases."""
 
-    def __init__(self, config) -> None:
-        super().__init__(config=config)
+    def __init__(self, config, agent_num) -> None:
+        super().__init__(config=config, agent_num=agent_num)
         # pylint: disable=no-member
 
         self.placements_conf.extents = [-2, -2, 2, 2]
